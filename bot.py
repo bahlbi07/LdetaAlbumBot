@@ -2,7 +2,7 @@ import logging
 import os
 import uuid
 import requests
-import asyncio
+import threading
 from dotenv import load_dotenv
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -24,10 +24,11 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAPA_SECRET_KEY = os.getenv("CHAPA_SECRET_KEY")
 PRIVATE_CHANNEL_ID = os.getenv("PRIVATE_CHANNEL_ID")
 ALBUM_PRICE = os.getenv("ALBUM_PRICE", "100")
-PORT = int(os.environ.get('PORT', 8080)) # Port for Render
+PORT = int(os.environ.get('PORT', 8080))
 
 # --- Logging ---
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+logging.getLogger("httpx").setLevel(logging.WARNING) # Reduce httpx noise
 
 # --- Conversation Handler States ---
 CHOOSE_LOCATION, CHOOSE_ACTION = range(2)
@@ -39,8 +40,8 @@ async def generate_chapa_link(user: dict, price: str, currency: str = "ETB") -> 
     payload = {
         "amount": price, "currency": currency, "email": f"{user['id']}@telegram.user",
         "first_name": user.get('first_name', 'User'), "last_name": user.get('last_name', 'Bot'),
-        "tx_ref": tx_ref, "callback_url": "https://webhook.site/",
-        "return_url": "https://t.me/your_bot_username", # Change your_bot_username
+        "tx_ref": tx_ref, "callback_url": "https://webhook.site/", # We will change this later
+        "return_url": "https://t.me/your_bot_username", # Change your_bot_username to your bot's username
         "customization[title]": "Ldeta Mariam Vol. 4 Album",
         "customization[description]": "Payment for the new album"
     }
@@ -89,7 +90,8 @@ async def handle_buy_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         else:
             await update.message.reply_text("ይቕሬታ! ኣብዚ እዋን'ዚ ናይ ክፍያ መላግቦ ክፍጠር ኣይተኻእለን።")
     elif choice == "🔙 ናብ መጀመርታ ተመለስ":
-        await start_command(update, context)
+        await start_command(update, context) # This needs to re-enter the conversation
+        return ConversationHandler.END # End current path and let user restart
     return ConversationHandler.END
 
 async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -107,15 +109,21 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
 def run_web_server():
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, HealthCheckHandler)
-    logging.info(f"Starting web server on port {PORT}")
+    logging.info(f"Starting web server on port {PORT}...")
     httpd.serve_forever()
 
 # --- Main Application Setup ---
-async def main():
+def main() -> None:
     if not all([TELEGRAM_TOKEN, CHAPA_SECRET_KEY, PRIVATE_CHANNEL_ID]):
         logging.error("!!! ERROR: Missing one or more environment variables.")
         return
 
+    # Start the simple web server in a separate thread
+    web_server_thread = threading.Thread(target=run_web_server)
+    web_server_thread.daemon = True
+    web_server_thread.start()
+
+    # Create the Telegram Bot Application
     application = Application.builder().token(TELEGRAM_TOKEN).build()
     
     conv_handler = ConversationHandler(
@@ -128,23 +136,9 @@ async def main():
     )
     application.add_handler(conv_handler)
 
-    # Start the bot
-    await application.initialize()
-    await application.start()
-    await application.updater.start_polling()
-    logging.info("Bot is polling...")
-
-    # Keep the main thread alive for the web server (which runs in a separate thread)
-    # The web server is just to keep Render happy. The bot logic is in the polling above.
-    # In a real-world scenario, you might run the web server in its own thread.
-    # For this simple case, we just need the script to not exit.
-    
-    # We will run a simple web server in the main thread now
-    run_web_server()
-
+    # Run the bot until the user presses Ctrl-C
+    logging.info("Starting bot polling...")
+    application.run_polling()
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logging.info("Bot stopped manually.")
+    main()
