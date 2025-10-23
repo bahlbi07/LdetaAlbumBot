@@ -8,7 +8,7 @@ import asyncio
 from dotenv import load_dotenv
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import (
     Application,
     CommandHandler,
