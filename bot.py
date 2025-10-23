@@ -8,13 +8,12 @@ import asyncio
 from dotenv import load_dotenv
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
     CommandHandler,
     ContextTypes,
-    MessageHandler,
-    filters,
+    CallbackQueryHandler,
     ConversationHandler,
 )
 
@@ -24,10 +23,10 @@ load_dotenv()
 # --- Configurations ---
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAPA_SECRET_KEY = os.getenv("CHAPA_SECRET_KEY")
-PRIVATE_CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID")) # Convert to integer
+PRIVATE_CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID"))
 ALBUM_PRICE = os.getenv("ALBUM_PRICE", "100")
 PORT = int(os.environ.get('PORT', 8080))
-RENDER_URL = os.getenv("RENDER_EXTERNAL_URL") # Render provides this automatically
+RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
 
 # --- Global variable to hold the bot application instance ---
 bot_app = None
@@ -37,18 +36,17 @@ logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # --- Conversation Handler States ---
-CHOOSE_LOCATION, CHOOSE_ACTION = range(2)
+CHOOSE_ACTION = 1
 
 # --- Chapa Payment Function ---
 async def generate_chapa_link(user_id: int, first_name: str, last_name: str, price: str) -> str:
-    # We include the user_id in the tx_ref to identify them later
     tx_ref = f"ldeta-album-{user_id}-{uuid.uuid4()}"
     headers = {"Authorization": f"Bearer {CHAPA_SECRET_KEY}"}
     payload = {
         "amount": price, "currency": "ETB", "email": f"{user_id}@telegram.user",
         "first_name": first_name, "last_name": last_name or first_name,
         "tx_ref": tx_ref,
-        "callback_url": f"{RENDER_URL}/chapa_webhook", # This tells Chapa where to send the confirmation
+        "callback_url": f"{RENDER_URL}/chapa_webhook",
         "customization[title]": "Ldeta Mariam Vol. 4 Album",
         "customization[description]": "Payment for the new album"
     }
@@ -64,58 +62,67 @@ async def generate_chapa_link(user_id: int, first_name: str, last_name: str, pri
 
 # --- Bot Handlers ---
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    keyboard = [["🇪🇹 ኣብ ውሽጢ ኢትዮጵያ"], ["🌍 ካብ ኢትዮጵያ ወጻኢ"]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
-    await update.message.reply_text(
-        f"ሰላም {update.effective_user.first_name}! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ኣበይ ከም ዘለኻ ምረጽ፦",
-        reply_markup=reply_markup
-    )
-    return CHOOSE_LOCATION
-
-# ... (other bot handlers remain the same) ...
-async def handle_location_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    choice = update.message.text
-    if choice == "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ":
-        keyboard = [["✅ ኣልበም ግዛእ"], ["🔙 ናብ መጀመርታ ተመለስ"]]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+    keyboard = [
+        [InlineKeyboardButton("🇪🇹 ኣብ ውሽጢ ኢትዮጵያ", callback_data="location_ethiopia")],
+        [InlineKeyboardButton("🌍 ካብ ኢትዮጵያ ወጻኢ", callback_data="location_outside")],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    # Check if this is a new start or a callback
+    if update.callback_query:
+        await update.callback_query.answer()
+        await update.callback_query.edit_message_text(
+            text=f"ሰላም {update.effective_user.first_name}! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ኣበይ ከም ዘለኻ ምረጽ፦",
+            reply_markup=reply_markup
+        )
+    else:
         await update.message.reply_text(
-            f"ጽቡቕ ምርጫ! ዋጋ ናይ'ዚ ራብዓይ ኣልበም {ALBUM_PRICE} ብር እዩ።\n\nክፍሊት ንምፍጻም 'ኣልበም ግዛእ' ዝብል ጠውቕ።",
+            f"ሰላም {update.effective_user.first_name}! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ኣበይ ከም ዘለኻ ምረጽ፦",
+            reply_markup=reply_markup
+        )
+    return CHOOSE_ACTION
+
+async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer() # Respond to the button press
+    
+    user_choice = query.data
+    user = update.effective_user
+
+    if user_choice == "location_ethiopia":
+        keyboard = [
+            [InlineKeyboardButton("✅ ኣልበም ግዛእ", callback_data="buy_album")],
+            [InlineKeyboardButton("🔙 ናብ መጀመርታ ተመለስ", callback_data="back_to_start")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text(
+            text=f"ጽቡቕ ምርጫ! ዋጋ ናይ'ዚ ራብዓይ ኣልበም {ALBUM_PRICE} ብር እዩ።\n\nክፍሊት ንምፍጻም 'ኣልበም ግዛእ' ዝብል ጠውቕ።",
             reply_markup=reply_markup
         )
         return CHOOSE_ACTION
-    elif choice == "🌍 ካብ ኢትዮጵያ ወጻኢ":
-        await update.message.reply_text("እዚ ናይ ወጻኢ ክፍያ ኣገልግሎት ኣብዚ እዋን'ዚ ኣይጀመረን።", reply_markup=ReplyKeyboardRemove())
-    return ConversationHandler.END
 
-async def handle_buy_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    choice = update.message.text
-    user = update.effective_user
-    if choice == "✅ ኣልበም ግዛእ":
-        await update.message.reply_text("የመስግነልና! ናይ ክፍያ መላግቦ እናዳለና ስለ ዝኾና በጃኻ ጽንሕ በል።", reply_markup=ReplyKeyboardRemove())
+    elif user_choice == "location_outside":
+        await query.edit_message_text(text="እዚ ናይ ወጻኢ ክፍያ ኣገልግሎት ኣብዚ እዋን'ዚ ኣይጀመረን። ኣብ ቀረባ እዋን ክንጅምር ኢና።")
+        return ConversationHandler.END
+
+    elif user_choice == "buy_album":
+        await query.edit_message_text(text="የመስግነልና! ናይ ክፍያ መላግቦ እናዳለና ስለ ዝኾና በጃኻ ጽንሕ በል።")
         payment_link = await generate_chapa_link(user.id, user.first_name, user.last_name, ALBUM_PRICE)
         if payment_link:
-            await update.message.reply_text(f"ክፍሊት ንምፍጻም ነዚ ዝስዕብ መላግቦ ተጠቐም:\n\n{payment_link}")
+            await query.message.reply_text(f"ክፍሊት ንምፍጻም ነዚ ዝስዕብ መላግቦ ተጠቐም:\n\n{payment_link}")
         else:
-            await update.message.reply_text("ይቕሬታ! ኣብዚ እዋን'ዚ ናይ ክፍያ መላግቦ ክፍጠር ኣይተኻእለን።")
-    elif choice == "🔙 ናብ መጀመርታ ተመለስ":
-        await start_command(update, context)
+            await query.message.reply_text("ይቕሬታ! ኣብዚ እዋን'ዚ ናይ ክፍያ መላግቦ ክፍጠር ኣይተኻእለን።")
         return ConversationHandler.END
+        
+    elif user_choice == "back_to_start":
+        return await start_command(update, context)
+
     return ConversationHandler.END
 
-async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("መስርሕ ተቋሪጹ ኣሎ። ዳግማይ ንምጅማр /start በል።", reply_markup=ReplyKeyboardRemove())
-    return ConversationHandler.END
-
-
-# --- Functions to run from the Webhook thread ---
+# ... (Webhook functions and Web Server remain the same) ...
 async def send_success_message(user_id: int):
-    """Sends the success message and channel invite link to the user."""
     try:
-        # Create a one-time invite link to the private channel
-        invite_link = await bot_app.bot.create_chat_invite_link(
-            chat_id=PRIVATE_CHANNEL_ID,
-            member_limit=1
-        )
+        invite_link = await bot_app.bot.create_chat_invite_link(chat_id=PRIVATE_CHANNEL_ID, member_limit=1)
         await bot_app.bot.send_message(
             chat_id=user_id,
             text=(
@@ -128,79 +135,42 @@ async def send_success_message(user_id: int):
     except Exception as e:
         logging.error(f"Failed to send invite link to user {user_id}: {e}")
 
-# --- Web Server for Render Health Check & Chapa Webhook ---
 class WebhookHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # This is for Render's health check
-        self.send_response(200)
-        self.send_header("Content-type", "text/plain")
-        self.end_headers()
+        self.send_response(200); self.send_header("Content-type", "text/plain"); self.end_headers()
         self.wfile.write(bytes("Bot is running and webhook is ready!", "utf-8"))
-
     def do_POST(self):
         if self.path == '/chapa_webhook':
             content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data)
+            post_data = self.rfile.read(content_length); data = json.loads(post_data)
             logging.info(f"Webhook received: {data}")
-
-            # Verification (optional but recommended for production)
-            # You can verify the signature from Chapa here
-
             if data.get("status") == "success":
                 tx_ref = data.get("tx_ref")
                 try:
-                    # Extract user_id from tx_ref like "ldeta-album-USERID-uuid"
                     user_id = int(tx_ref.split('-')[2])
                     logging.info(f"Payment success for user_id: {user_id}")
-                    
-                    # Schedule the async function to be run in the bot's event loop
                     asyncio.run_coroutine_threadsafe(send_success_message(user_id), bot_app.loop)
-                    
                 except (IndexError, ValueError) as e:
                     logging.error(f"Could not parse user_id from tx_ref: {tx_ref} - Error: {e}")
-
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(bytes("OK", "utf-8"))
-        else:
-            self.send_response(404)
-            self.end_headers()
+            self.send_response(200); self.end_headers(); self.wfile.write(bytes("OK", "utf-8"))
+        else: self.send_response(404); self.end_headers()
 
 def run_web_server():
-    server_address = ('', PORT)
-    httpd = HTTPServer(server_address, WebhookHandler)
-    logging.info(f"Starting web server on port {PORT} for webhook...")
-    httpd.serve_forever()
+    server_address = ('', PORT); httpd = HTTPServer(server_address, WebhookHandler)
+    logging.info(f"Starting web server on port {PORT} for webhook..."); httpd.serve_forever()
 
-# --- Main Application Setup ---
 def main() -> None:
     global bot_app
     if not all([TELEGRAM_TOKEN, CHAPA_SECRET_KEY, PRIVATE_CHANNEL_ID, RENDER_URL]):
-        logging.error("!!! ERROR: Missing one or more environment variables. RENDER_EXTERNAL_URL is crucial.")
-        return
-
-    # Start the simple web server in a separate thread
-    web_server_thread = threading.Thread(target=run_web_server)
-    web_server_thread.daemon = True
-    web_server_thread.start()
-
-    # Create the Telegram Bot Application
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
-    bot_app = application # Store the application instance globally
-    
+        logging.error("!!! ERROR: Missing one or more environment variables."); return
+    web_server_thread = threading.Thread(target=run_web_server); web_server_thread.daemon = True; web_server_thread.start()
+    application = Application.builder().token(TELEGRAM_TOKEN).build(); bot_app = application
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start_command)],
-        states={
-            CHOOSE_LOCATION: [MessageHandler(filters.Regex("^(🇪🇹 ኣብ ውሽጢ ኢትዮጵያ|🌍 ካብ ኢትዮጵያ ወጻኢ)$"), handle_location_choice)],
-            CHOOSE_ACTION: [MessageHandler(filters.Regex("^(✅ ኣልበም ግዛእ|🔙 ናብ መጀመርታ ተመለስ)$"), handle_buy_choice)],
-        },
-        fallbacks=[CommandHandler("cancel", cancel_command)],
+        states={CHOOSE_ACTION: [CallbackQueryHandler(handle_button_press)]},
+        fallbacks=[CommandHandler("start", start_command)],
+        allow_reentry=True
     )
     application.add_handler(conv_handler)
-
-    logging.info("Starting bot polling...")
-    application.run_polling()
-
-if __name__ == "__main__":
-    main()
+    logging.info("Starting bot polling..."); application.run_polling()
+if __name__ == "__main__": main()
