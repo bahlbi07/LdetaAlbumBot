@@ -6,3 +6,15 @@
 git add .
 git commit -m "Implement Chapa webhook functionality" // እዚ ነገር ግን ከከም ዘእተውኻዮ እዩ።
 git push
+
+
+
+
+
+
+TELEGRAM_TOKEN = os.getenv("8477881762:AAFAMZzI3neDbIirPH2-5DQ49gN5kgI_LYo")
+CHAPA_SECRET_KEY = os.getenv("CHASECK_TEST-VFA6E4V1kVw8JFHnDByJzZ1GDe6ZFdgO")
+PRIVATE_CHANNEL_ID = int(os.getenv("-1003116455873")) # Convert to integer
+ALBUM_PRICE = os.getenv("ALBUM_PRICE", "300")
+PORT = int(os.environ.get('PORT', 8080))
+RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
