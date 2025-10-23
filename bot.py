@@ -132,7 +132,6 @@ async def handle_buy_process(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return ConversationHandler.END
 
 # THIS IS A TEMPORARY FUNCTION TO GET FILE_ID
-async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Prints the update object to the logs to find the file_id of a photo."""
     logging.info("--- PHOTO RECEIVED ---")
     logging.info(f"Full update object: {update}")
@@ -197,8 +196,6 @@ def main() -> None:
     )
     application.add_handler(conv_handler)
     
-    # Add the NEW temporary handler for photos HERE, BEFORE run_polling
-    application.add_handler(MessageHandler(filters.PHOTO, get_file_id))
 
     logging.info("Starting bot polling..."); 
     application.run_polling()
