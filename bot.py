@@ -16,6 +16,8 @@ from telegram.ext import (
     ContextTypes,
     CallbackQueryHandler,
     ConversationHandler,
+    MessageHandler, # Make sure MessageHandler is imported
+    filters # Make sure filters is imported
 )
 
 # Load environment variables
@@ -65,37 +67,30 @@ async def generate_chapa_link(user_id: int, first_name: str, last_name: str, pri
 # --- Bot Handlers ---
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.effective_user
-    
     main_menu_text = (
         f"ሰላም <b>{user.first_name}</b>!\n\n"
         "እንኳዕ ብደሓን ናብ ወግዓዊ መሸጢ ቦት <b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> ራብዓይ ኣልበም መጻእካ።"
     )
-    
     keyboard = [
         [InlineKeyboardButton("🛒 ኣልበም ግዛእ", callback_data="buy_album_start")],
         [InlineKeyboardButton("ℹ️ ብዛዕባ እዚ ኣልበም", callback_data="about_album")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Send the album art first
     if ALBUM_ART_FILE_ID:
         try:
             await context.bot.send_photo(chat_id=user.id, photo=ALBUM_ART_FILE_ID)
         except Exception as e:
             logging.error(f"Could not send album art photo: {e}")
-
     if update.callback_query:
         await update.callback_query.answer()
         await update.callback_query.edit_message_text(text=main_menu_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     else:
         await update.message.reply_text(text=main_menu_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-        
     return MAIN_MENU
 
 async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    
     if query.data == "about_album":
         about_text = (
             "<b><u>ብዛዕባ ራብዓይ ኣልበም</u></b>\n\n"
@@ -107,7 +102,6 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text=about_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
         return MAIN_MENU
-
     elif query.data == "buy_album_start":
         keyboard = [
             [InlineKeyboardButton("🇪🇹 ኣብ ውሽጢ ኢትዮጵያ", callback_data="location_ethiopia")],
@@ -117,18 +111,12 @@ async def handle_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(text="በጃኻ ክፍሊት ንምፍጻም ኣበይ ከም ዘለኻ ምረጽ፦", reply_markup=reply_markup)
         return BUY_CONFIRM
-    
     return MAIN_MENU
 
 async def handle_buy_process(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     user = update.effective_user
-# THIS IS A TEMPORARY FUNCTION TO GET FILE_ID
-async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Prints the update object to the logs to find the file_id of a photo."""
-    logging.info("PHOTO RECEIVED. PRINTING UPDATE OBJECT:")
-    logging.info(update)
     if query.data == "location_ethiopia":
         await query.edit_message_text(text=f"ጽቡቕ! ዋጋ ኣልበም <b>{ALBUM_PRICE} ብር</b> እዩ።\n\n<i>ናይ ክፍያ መላግቦ እናዳለና ስለ ዝኾና በጃኻ ጽንሕ በል።</i>", parse_mode=ParseMode.HTML)
         payment_link = await generate_chapa_link(user.id, user.first_name, user.last_name, ALBUM_PRICE)
@@ -137,14 +125,19 @@ async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         else:
             await query.message.reply_text("ይቕሬታ! ኣብዚ እዋን'ዚ ናይ ክፍያ መላግቦ ክፍጠር ኣይተኻእለን።")
         return ConversationHandler.END
-
     elif query.data == "location_outside":
         await query.edit_message_text(text="እዚ ናይ ወጻኢ ክፍያ ኣገልግሎት ኣብዚ እዋን'ዚ ኣይጀመረን።")
-        # Go back to main menu after a delay
         await asyncio.sleep(3)
         return await start_command(update, context)
-
     return ConversationHandler.END
+
+# THIS IS A TEMPORARY FUNCTION TO GET FILE_ID
+async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Prints the update object to the logs to find the file_id of a photo."""
+    logging.info("--- PHOTO RECEIVED ---")
+    logging.info(f"Full update object: {update}")
+    logging.info("--- END OF PHOTO INFO ---")
+    await update.message.reply_text("Photo received. Checking logs for file_id...")
 
 # ... (Webhook functions and Web Server remain the same) ...
 async def send_success_message(user_id: int):
@@ -203,11 +196,12 @@ def main() -> None:
         allow_reentry=True
     )
     application.add_handler(conv_handler)
+    
+    # Add the NEW temporary handler for photos HERE, BEFORE run_polling
+    application.add_handler(MessageHandler(filters.PHOTO, get_file_id))
+
     logging.info("Starting bot polling..."); 
     application.run_polling()
-    # Find this line:
-application.add_handler(conv_handler)
 
-# Add this NEW line right below it:
-application.add_handler(MessageHandler(filters.PHOTO, get_file_id))
-if __name__ == "__main__": main()
+if __name__ == "__main__": 
+    main()
