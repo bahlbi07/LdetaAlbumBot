@@ -174,12 +174,31 @@ def run_web_server():
     server_address = ('', PORT); httpd = HTTPServer(server_address, WebhookHandler)
     logging.info(f"Starting web server on port {PORT}..."); httpd.serve_forever()
 
+# PASTE THIS NEW CORRECTED SECTION
 def main() -> None:
     global bot_app
-    if not all([TELEGRAM_TOKEN, CHAPA_SECRET_KEY, PRIVATE_CHANNEL_ID, RENDER_URL]):
-        logging.error("!!! ERROR: Missing one or more environment variables."); return
-    web_server_thread = threading.Thread(target=run_web_server); web_server_thread.daemon = True; web_server_thread.start()
-    application = Application.builder().token(TELEGRAM_TOKEN).build(); bot_app = application
+
+    # --- START: NEW DIAGNOSTIC CODE ---
+    if CHAPA_SECRET_KEY:
+        logging.info("--- CHAPA KEY CHECK ---")
+        logging.info(f"Key Found. Starts with: {CHAPA_SECRET_KEY[:15]}")
+        logging.info(f"Key Ends with: {CHAPA_SECRET_KEY[-6:]}")
+        logging.info("-----------------------")
+    else:
+        logging.error("!!! FATAL: CHAPA_SECRET_KEY IS NOT FOUND AT ALL !!!")
+    # --- END: NEW DIAGNOSTIC CODE ---
+
+    if not all([TELEGRAM_TOKEN, CHAPA_SECRET_KEY, PRIVATE_CHANNEL_ID]):
+        logging.error("!!! ERROR: Missing one or more environment variables.")
+        return
+
+    web_server_thread = threading.Thread(target=run_web_server)
+    web_server_thread.daemon = True
+    web_server_thread.start()
+
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
+    bot_app = application
+    
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start_command)],
         states={
@@ -197,9 +216,8 @@ def main() -> None:
     )
     application.add_handler(conv_handler)
     
-
-    logging.info("Starting bot polling..."); 
+    logging.info("Starting bot polling...")
     application.run_polling()
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()
