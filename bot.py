@@ -51,6 +51,7 @@ async def generate_chapa_link(user_id: int, first_name: str, last_name: str, pri
         "first_name": first_name, "last_name": last_name or first_name,
         "tx_ref": tx_ref,
         "callback_url": f"{RENDER_URL}/chapa_webhook",
+        "return_url": "https://t.me/YOUR_BOT_USERNAME_HERE",
         "customization[title]": "Lidetamariam Vol. 4 Album",
         "customization[description]": "Payment for the new album"
     }
