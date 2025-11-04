@@ -82,7 +82,7 @@ TRANSLATIONS = {
             "የቐንየልና! እግዚኣብሔር ይባርኽካ።"
         ),
         'saho_unavailable': "እቲ ናይ ሳሆ (ኢሮብ) ቋንቋ ክፋል ኣብ ስራሕ ይርከብ። በጃኻ ንግዚኡ ካልእ ቋንቋ ምረጽ።",
-        'wait_for_verification': "የቐንየልና!  потвърждение ተቐቢልና ኣለና። ሓደ ኣካያዲ ሕጂ ነቲ ዝሰደድካዮ ደረሰኝ ከረጋግጾ እዩ። ድሕሪ ቁሩብ እዋን ናይ መእተዊ መላግቦ ክንሰደልካ ኢና። በጃኻ ብትዕግስቲ ጽናሕ።",
+        'wait_for_verification': "የቐንየልና!  መረጋገጺ ተቐቢልና ኣለና። ሓደ ኣካያዲ ሕጂ ነቲ ዝሰደድካዮ ደረሰኝ ከረጋግጾ እዩ። ድሕሪ ቁሩብ እዋን ናይ መእተዊ መላግቦ ክንሰደልካ ኢና። በጃኻ ብትዕግስቲ ጽናሕ።",
         'payment_notif_admin': "🔔 ሓድሽ ደረሰኝ ተላኢኹ!\n\nተጠቃሚ {user_mention} (ID: `{user_id}`) ደረሰኝ ከም ዝለኣኸ ኣፍሊጡ ኣሎ። በጃኻ ናብዚ ሰብ'ዚ ዝመጸካ መልእኽቲ ርኢኻ ነቲ ክፍሊት ኣረጋግጽ።\n\nምስ ኣረጋገጽካ:\n`/approve {user_id}`\n\nክፍሊቱ ጌጋ እንተኾይኑ:\n`/reject {user_id}`",
         'approve_usage': "⚠️ ጌጋ ኣጠቓቕማ!\nከምዚ ተጠቐም: /approve <user_id>\nኣብነት: /approve 123456789",
         'reject_usage': "⚠️ ጌጋ ኣጠቓቕማ!\nከምዚ ተጠቐም: /reject <user_id>\nኣብነት: /reject 123456789",
@@ -128,7 +128,7 @@ TRANSLATIONS = {
             "በርካታ አዳዲስና መንፈሳዊ መዝሙሮችን ይዟል። ግዢዎ ለአገልግሎታችን ትልቅ ድጋፍ ነው።\n\n"
             "እናመሰግናለን! እግዚአብሔር ይባርክዎ።"
         ),
-        'saho_unavailable': "የሳሆ (ኢሮብ) ቋንቋ ክፍል በግንባታ ላይ ነው። እባክዎ ለጊዜው ሌላ ቋንቋ ይምረጡ።",
+        'saho_unavailable': "ገና በስራ ላይ ስለ ሆነ ሌሎችን ኣማራጮች ይመልከቱ",
         'wait_for_verification': "እናመሰግናለን! ማረጋገጫዎን ተቀብለናል። አስተዳዳሪ አሁን የክፍያ ወረቀትዎን ያረጋግጣል። የመግቢያ ሊንክ ያለው መልእክት በቅርቡ ይደርስዎታል። እባክዎ በትዕግስት ይጠብቁ።",
         'payment_notif_admin': "🔔 አዲስ የክፍያ ማረጋገጫ ተልኳል!\n\nተጠቃሚ {user_mention} (ID: `{user_id}`) የክፍያ ወረቀት መላኩን አረጋግጧል። እባክዎ ከዚህ ተጠቃሚ የመጡትን መልዕክቶች ያረጋግጡ እና ክፍያውን ያረጋግጡ።\n\nአንዴ ካረጋገጡ በኋላ ይጠቀሙ:\n`/approve {user_id}`\n\nክፍያው ልክ ያልሆነ ከሆነ ይጠቀሙ:\n`/reject {user_id}`",
         'approve_usage': "⚠️ የተሳሳተ አጠቃቀም!\nይህን ይጠቀሙ: /approve <user_id>\nምሳሌ: /approve 123456789",
@@ -157,7 +157,7 @@ TRANSLATIONS = {
         'slip_sent_button': "✅ Derese Aka Le Ake.",
         'payment_instructions': "Tani qism ab sereh we-et yerkeb. Fadlan akak af dooro.",
         'about_album_text': "Tani qism ab sereh we-et yerkeb.",
-        'saho_unavailable': "Saho (Irob) afki-yi qism ab sereh we-et yerkeb. Fadlan, gize-yu, akak af dooro.",
+        'saho_unavailable': "እዚ ክፋል ናይ ሳሆ ኣብ ስራሕ እዩ ዝርከብ በይዛኦም ንግዚኡ ካሊእ ቋንቋ ይጠቀሙ።",
         'wait_for_verification': "Shukran! Tenna potvrijedženje tergabne. Admin hiyye tenna derese karagagse. Ba-adoh Gizek na kanal adagsele link kalakna. Fadlan bi tigisti sanaah.",
         # Admin and other messages will use English as a fallback
         'payment_success_user': (
