@@ -24,7 +24,7 @@ TRANSLATIONS = {
             "<b><u>2. Bank of Abyssinia (BOA):</u></b>\n"
             "<b>Account Name:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
             "<b>Account Number:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
-            "⚠️ <b>VERY IMPORTANT:</b> After you have made the payment, you **MUST** send the receipt (screenshot) to our admin at [@YOUR_ADMIN_USERNAME_HERE].\n\n"
+            "⚠️ <b>VERY IMPORTANT:</b> After you have made the payment, you **MUST** send the receipt (screenshot) to our admin at @Dmtsibereket.\n\n"
             "Once you have sent the slip, please press the button below."
         ),
         'about_album_text': (
@@ -47,7 +47,7 @@ TRANSLATIONS = {
             "You can now join the private channel using this **one-time** invite link:\n"
             "<b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ We are sorry, but there was an issue verifying your payment. Your request has been declined. If you believe this is a mistake, please contact our admin directly at [@YOUR_ADMIN_USERNAME_HERE] for assistance.",
+        'payment_rejected_user': "❌ We are sorry, but there was an issue verifying your payment. Your request has been declined. If you believe this is a mistake, please contact our admin directly at @Dmtsibereket for assistance.",
     },
     'ti': {
         'welcome_language': "ሰላም <b>{user_name}</b>! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ንኽትቅጽል ቋንቋ ምረጽ፦",
@@ -72,7 +72,7 @@ TRANSLATIONS = {
             "<b><u>2. ባንኪ ኣቢሲንያ (BOA):</u></b>\n"
             "<b>ስም:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
             "<b>ቁጽሪ ሕሳብ:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
-            "⚠️ <b>ኣዝዩ ኣገዳሲ:</b> ክፍሊትካ ምስ ፈጸምካ፡ ነቲ ደረሰኝ (screenshot) ናብ ኣካያዲና [@YOUR_ADMIN_USERNAME_HERE] ክትሰዶ **ግድን** እዩ።\n\n"
+            "⚠️ <b>ኣዝዩ ኣገዳሲ:</b> ክፍሊትካ ምስ ፈጸምካ፡ ነቲ ደረሰኝ (screenshot) ናብ ኣካያዲና @Dmtsibereket ክትሰዶ **ግድን** እዩ።\n\n"
             "ነቲ ደረሰኝ ምስ ሰደድካዮ፡ ነዛ ኣብ ታሕቲ ዘላ ቁልፊ ጠውቕ።"
         ),
         'about_album_text': (
@@ -95,7 +95,7 @@ TRANSLATIONS = {
             "ነዚ **ሓደ ግዜ ጥራይ** ዝሰርሕ መላግቦ ተጠቒምኩም ናብቲ ውሑስ ቻነል ክትኣትዉ ትኽእሉ ኢኹም፦\n"
             "<b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ ይቕሬታ፡ ነቲ ዝሰደድካዮ ደረሰኝ ከነረጋግጽ ኣይከኣልናን። ሕቶኻ ተነጺጉ ኣሎ። እዚ ብጌጋ ዝተፈጸመ ይመስለካ እንተኾይኑ፡ በጃኻ ምስ ኣካያዲና ብቐጥታ ኣብ [@YOUR_ADMIN_USERNAME_HERE] ተራኸብ።",
+        'payment_rejected_user': "❌ ይቕሬታ፡ ነቲ ዝሰደድካዮ ደረሰኝ ከነረጋግጽ ኣይከኣልናን። ሕቶኻ ተነጺጉ ኣሎ። እዚ ብጌጋ ዝተፈጸመ ይመስለካ እንተኾይኑ፡ በጃኻ ምስ ኣካያዲና ብቐጥታ ኣብ @Dmtsibereket ተራኸብ።",
     },
     'am': {
         'welcome_language': "ሰላም <b>{user_name}</b>! እንኳን ደህና መጡ።\n\nእባክዎ ለመቀጠል ቋንቋ ይምረጡ:",
@@ -119,7 +119,7 @@ TRANSLATIONS = {
             "<b><u>2. አቢሲንያ ባንክ (BOA):</u></b>\n"
             "<b>ስም:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
             "<b>የሂሳብ ቁጥር:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
-            "⚠️ <b>በጣም አስፈላጊ:</b> ክፍያ ከፈጸሙ በኋላ፣ የክፍያ ማረጋገጫውን (screenshot) ለአስተዳዳሪያችን [@YOUR_ADMIN_USERNAME_HERE] መላክ **ግዴታ** ነው።\n\n"
+            "⚠️ <b>በጣም አስፈላጊ:</b> ክፍያ ከፈጸሙ በኋላ፣ የክፍያ ማረጋገጫውን (screenshot) ለአስተዳዳሪያችን @Dmtsibereket መላክ **ግዴታ** ነው።\n\n"
             "ደረሰኙን ከላኩ በኋላ፣ ከታች ያለውን ቁልፍ ይጫኑ።"
         ),
         'about_album_text': (
@@ -142,7 +142,7 @@ TRANSLATIONS = {
             "ይህን **የአንድ ጊዜ** መግቢያ ሊንክ በመጠቀም ወደ ግል ቻናሉ መቀላቀል ይችላሉ፦\n"
             "<b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ ይቅርታ፣ ክፍያዎን ማረጋገጥ ላይ ችግር ነበር። ጥያቄዎ ውድቅ ተደርጓል። ይህ በስህተት እንደሆነ ካመኑ፣ እባክዎ አስተዳዳሪያችንን በቀጥታ በ [@YOUR_ADMIN_USERNAME_HERE] ያግኙ።",
+        'payment_rejected_user': "❌ ይቅርታ፣ ክፍያዎን ማረጋገጥ ላይ ችግር ነበር። ጥያቄዎ ውድቅ ተደርጓል። ይህ በስህተት እንደሆነ ካመኑ፣ እባክዎ አስተዳዳሪያችንን በቀጥታ በ @Dmtsibereket ያግኙ።",
     },
     'saho': {
         'welcome_language': "Bade Welcome, <b>{user_name}</b>!\n\nFadlan afki dooro:",
@@ -166,6 +166,6 @@ TRANSLATIONS = {
             "Tani **ide gezeh** takaddam link kah dagoytiyok na channel kadato takale:-\n"
             "<b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ Ikra! Tenna kiflitot derese karagagne akeennino. Fadlan na admin bi qeteta ab [@YOUR_ADMIN_USERNAME_HERE] terakeb.",
+        'payment_rejected_user': "❌ Ikra! Tenna kiflitot derese karagagne akeennino. Fadlan na admin bi qeteta ab @Dmtsibereket terakeb.",
     }
 }
