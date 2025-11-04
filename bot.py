@@ -12,6 +12,8 @@ from telegram.ext import (
     ContextTypes,
     CallbackQueryHandler,
     ConversationHandler,
+    MessageHandler,
+    filters,
 )
 
 # Import the translations
