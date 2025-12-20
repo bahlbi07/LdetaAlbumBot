@@ -1,203 +1,182 @@
-import logging, os, threading, asyncio
+import logging, os, threading
 from dotenv import load_dotenv
-from http.server import HTTPServer, BaseHTTPRequestHandler
-
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import (
-    Application, CommandHandler, ContextTypes, CallbackQueryHandler,
-    ConversationHandler, MessageHandler, filters
+    Application, CommandHandler, ContextTypes, 
+    CallbackQueryHandler, ConversationHandler, MessageHandler, filters
 )
-
 from translations import TRANSLATIONS
 
 load_dotenv()
 
-# --- Configurations ---
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID")
-ALBUM_ART_FILE_ID = os.getenv("ALBUM_ART_FILE_ID")
-PORT = int(os.environ.get('PORT', 8080))
-CHANNEL_IDS = {
+# --- Config & Environment ---
+TOKEN = os.getenv("TELEGRAM_TOKEN")
+ADMIN_ID = os.getenv("ADMIN_CHAT_ID")
+POSTER = os.getenv("ALBUM_ART_FILE_ID")
+CHANNELS = {
     'vol4': int(os.getenv("CHANNEL_ID_VOL_4", 0)),
     'vol3': int(os.getenv("CHANNEL_ID_VOL_3", 0)),
     'vol2': int(os.getenv("CHANNEL_ID_VOL_2", 0)),
     'vol1': int(os.getenv("CHANNEL_ID_VOL_1", 0)),
 }
 
-logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
+# --- States ---
+(CHOOSING_LANG, GREETING, NAVIGATING_MENU, SELECTING_LOC, 
+ UPLOADING_PROOF, VIEWING_GUIDE, VIEWING_HELP) = range(7)
 
-# --- Enhanced Conversation States ---
-(START_STAGE, WELCOME_STAGE, MENU_STAGE, LOCATION_STAGE, 
- PROOF_STAGE, GUIDE_STAGE, HELP_STAGE) = range(7)
-
-def get_text(lang, key, **kwargs):
+def t(lang, key, **kwargs):
+    """Dynamic Translation Helper"""
     return TRANSLATIONS.get(lang, TRANSLATIONS['ti']).get(key, f"_{key}_").format(**kwargs)
 
-# --- Core Handlers ---
+# --- Logic Handlers ---
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ደረጃ 1: ፖስተርን ቋንቋ ጥራይን"""
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """[100X START] Poster + Multi-Language Grid"""
     context.user_data.clear()
     kb = [
-        [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="lang_ti"), InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="lang_am")],
-        [InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"), InlineKeyboardButton("🇪🇹 Afaan Oromoo", callback_data="lang_om")],
-        [InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ", callback_data="lang_saho")]
+        [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="l_ti"), InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="l_am")],
+        [InlineKeyboardButton("🇬🇧 English", callback_data="l_en"), InlineKeyboardButton("🇪🇹 Afaan Oromoo", callback_data="l_om")],
+        [InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ", callback_data="l_saho")]
     ]
+    caption = "<b>🙏 ሰላም / Welcome / ሰላም</b>\n\nChoose your language to begin this spiritual journey.\nንኽትጅምር ቋንቋ ምረጽ። / ለመጀመር ቋንቋ ይምረጡ።"
     
     if update.callback_query:
         await update.callback_query.answer()
-        msg = update.callback_query.message
-        if ALBUM_ART_FILE_ID:
-            await msg.edit_caption(caption="<b>Please Select Your Language</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-        else:
-            await msg.edit_text("<b>Please Select Your Language</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+        await update.callback_query.message.edit_caption(caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
     else:
-        if ALBUM_ART_FILE_ID:
-            await update.message.reply_photo(photo=ALBUM_ART_FILE_ID, caption="<b>Please Select Your Language</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-        else:
-            await update.message.reply_text("<b>Please Select Your Language</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return START_STAGE
+        if POSTER: await update.message.reply_photo(photo=POSTER, caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+        else: await update.message.reply_text(caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return CHOOSING_LANG
 
-async def lang_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ደረጃ 2: እንኳዕ ብደሓን መጻእካ (መንፈሳዊ ሰላምታ)"""
+async def welcome_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """[100X WELCOME] Spiritual Greeting"""
     query = update.callback_query; await query.answer()
     lang = query.data.split('_')[1]
     context.user_data['lang'] = lang
     
-    kb = [[InlineKeyboardButton(get_text(lang, 'enter_store_btn'), callback_data="go_to_menu")]]
-    welcome_text = get_text(lang, 'welcome_msg', user_name=update.effective_user.first_name)
-    
-    await query.edit_message_caption(caption=welcome_text, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return WELCOME_STAGE
+    kb = [[InlineKeyboardButton(t(lang, 'btn_enter'), callback_data="menu"), InlineKeyboardButton(t(lang, 'btn_back'), callback_data="start")]]
+    text = t(lang, 'welcome_text', name=update.effective_user.first_name)
+    await query.edit_message_caption(caption=text, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return GREETING
 
 async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ደረጃ 3: ቀንዲ ማእኸል ኣልበማት"""
+    """[100X MENU] Modern Album Store Layout"""
     query = update.callback_query; await query.answer()
-    lang = context.user_data.get('lang', 'ti')
+    lang = context.user_data['lang']
     
     kb = [
-        [InlineKeyboardButton(get_text(lang, 'album_vol_4'), callback_data="buy_vol4")],
-        [InlineKeyboardButton(get_text(lang, 'album_vol_3'), callback_data="buy_vol3")],
-        [InlineKeyboardButton(get_text(lang, 'album_vol_2'), callback_data="buy_vol2")],
-        [InlineKeyboardButton(get_text(lang, 'album_vol_1'), callback_data="buy_vol1")],
-        [InlineKeyboardButton(get_text(lang, 'guide_button'), callback_data="go_guide")],
-        [InlineKeyboardButton(get_text(lang, 'help_button'), callback_data="go_help")],
-        [InlineKeyboardButton(get_text(lang, 'back_to_lang'), callback_data="restart")]
+        [InlineKeyboardButton(t(lang, 'vol4'), callback_data="buy_vol4")],
+        [InlineKeyboardButton(t(lang, 'vol3'), callback_data="buy_vol3"), InlineKeyboardButton(t(lang, 'vol2'), callback_data="buy_vol2")],
+        [InlineKeyboardButton(t(lang, 'vol1'), callback_data="buy_vol1"), InlineKeyboardButton(t(lang, 'btn_guide'), callback_data="guide")],
+        [InlineKeyboardButton(t(lang, 'btn_help'), callback_data="help"), InlineKeyboardButton(t(lang, 'btn_lang'), callback_data="start")]
     ]
-    await query.edit_message_caption(caption=get_text(lang, 'main_menu_prompt'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return MENU_STAGE
+    await query.edit_message_caption(caption=t(lang, 'menu_prompt'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return NAVIGATING_MENU
 
-async def album_details(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ደረጃ 4: ምርጫ ቦታ"""
+async def album_selected(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """[100X LOCATION] Intelligent Geo-Check"""
     query = update.callback_query; await query.answer()
-    lang = context.user_data.get('lang', 'ti')
-    album_key = query.data.split('_')[1]
-    context.user_data['album_key'] = album_key
+    lang = context.user_data['lang']
+    context.user_data['album'] = query.data.split('_')[1]
     
     kb = [
-        [InlineKeyboardButton(get_text(lang, 'loc_in'), callback_data="loc_et")],
-        [InlineKeyboardButton(get_text(lang, 'loc_out'), callback_data="loc_os")],
-        [InlineKeyboardButton(get_text(lang, 'back_button'), callback_data="go_to_menu")]
+        [InlineKeyboardButton(t(lang, 'loc_eth'), callback_data="loc_ok"), InlineKeyboardButton(t(lang, 'loc_intl'), callback_data="loc_no")],
+        [InlineKeyboardButton(t(lang, 'btn_back'), callback_data="menu")]
     ]
-    await query.edit_message_caption(caption=get_text(lang, 'ask_loc_text'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return LOCATION_STAGE
+    await query.edit_message_caption(caption=t(lang, 'loc_prompt'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return SELECTING_LOC
 
-async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ደረጃ 5: ናይ ክፍሊት ሓበሬታ"""
+async def payment_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """[100X PAYMENT] Clear Financial Instructions"""
     query = update.callback_query; await query.answer()
-    lang = context.user_data.get('lang', 'ti')
+    lang = context.user_data['lang']
     
-    if query.data == "loc_os":
-        kb = [[InlineKeyboardButton(get_text(lang, 'back_button'), callback_data="go_to_menu")]]
-        await query.edit_message_caption(caption=get_text(lang, 'loc_out_unavailable'), reply_markup=InlineKeyboardMarkup(kb))
-        return LOCATION_STAGE
+    if query.data == "loc_no":
+        kb = [[InlineKeyboardButton(t(lang, 'btn_back'), callback_data="menu")]]
+        return await query.edit_message_caption(caption=t(lang, 'intl_err'), reply_markup=InlineKeyboardMarkup(kb))
 
-    album_key = context.user_data['album_key']
-    price = "300" if album_key == "vol4" else "100"
-    instr = get_text(lang, 'payment_instructions', album_title=album_key.upper(), price=price)
+    album = context.user_data['album']
+    price = "300" if album == "vol4" else "100"
+    kb = [[InlineKeyboardButton(t(lang, 'btn_help'), callback_data="help"), InlineKeyboardButton(t(lang, 'btn_back'), callback_data="menu")]]
     
-    kb = [
-        [InlineKeyboardButton(get_text(lang, 'help_button'), callback_data="go_help")],
-        [InlineKeyboardButton(get_text(lang, 'back_button'), callback_data="go_to_menu")]
-    ]
-    await query.edit_message_caption(caption=instr, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return PROOF_STAGE
+    msg = t(lang, 'pay_instr', album=album.upper(), price=price)
+    await query.edit_message_caption(caption=msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return UPLOADING_PROOF
 
-async def guide_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ቀሊል መምርሒ (ንህጻን ዝርድኦ)"""
-    query = update.callback_query; await query.answer()
-    lang = context.user_data.get('lang', 'ti')
-    kb = [[InlineKeyboardButton(get_text(lang, 'back_button'), callback_data="go_to_menu")]]
-    await query.edit_message_caption(caption=get_text(lang, 'full_guide'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return MENU_STAGE
-
-async def help_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ሓገዝ ገጽ"""
-    query = update.callback_query; await query.answer()
-    lang = context.user_data.get('lang', 'ti')
-    kb = [[InlineKeyboardButton(get_text(lang, 'back_button'), callback_data="go_to_menu")]]
-    await query.edit_message_caption(caption=get_text(lang, 'help_page_text'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return MENU_STAGE
-
-async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """መረጋገጺ ምቕባል"""
-    lang = context.user_data.get('lang', 'ti')
+async def handle_proof(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """[100X PROOF] Robust Submission & Admin Alert"""
+    lang = context.user_data['lang']
     user = update.effective_user
-    album_key = context.user_data.get('album_key', 'N/A')
+    album = context.user_data['album']
     
     # Notify Admin
-    admin_msg = f"🔔 <b>New Payment!</b>\nUser: {user.mention_html()}\nID: <code>{user.id}</code>\nAlbum: {album_key}\n\nApprove: `/approve {user.id} {album_key}`"
-    await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_msg, parse_mode=ParseMode.HTML)
-    if update.message.photo: await update.message.forward(ADMIN_CHAT_ID)
-    elif update.message.text: await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"Trans ID: {update.message.text}")
+    alert = f"💎 <b>New Purchase Request!</b>\n👤 User: {user.mention_html()}\n🆔 ID: <code>{user.id}</code>\n💿 Album: <b>{album.upper()}</b>\n\nApprove: `/approve {user.id} {album}`"
+    await context.bot.send_message(ADMIN_ID, alert, parse_mode=ParseMode.HTML)
+    if update.message.photo: await update.message.forward(ADMIN_ID)
+    elif update.message.text: await context.bot.send_message(ADMIN_ID, f"💬 Trans ID: <code>{update.message.text}</code>", parse_mode=ParseMode.HTML)
 
-    await update.message.reply_text(get_text(lang, 'proof_received_msg'), parse_mode=ParseMode.HTML)
+    await update.message.reply_text(t(lang, 'proof_done'), parse_mode=ParseMode.HTML)
     return ConversationHandler.END
 
-# --- Admin Function ---
-async def approve_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if str(update.effective_chat.id) != str(ADMIN_CHAT_ID): return
+# --- Navigation Helpers ---
+
+async def show_guide(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query; await query.answer()
+    lang = context.user_data['lang']
+    kb = [[InlineKeyboardButton(t(lang, 'btn_back'), callback_data="menu")]]
+    await query.edit_message_caption(caption=t(lang, 'guide_content'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return NAVIGATING_MENU
+
+async def show_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query; await query.answer()
+    lang = context.user_data['lang']
+    kb = [[InlineKeyboardButton(t(lang, 'btn_back'), callback_data="menu")]]
+    await query.edit_message_caption(caption=t(lang, 'help_content'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return NAVIGATING_MENU
+
+# --- Admin Core ---
+
+async def approve_logic(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if str(update.effective_chat.id) != str(ADMIN_ID): return
     try:
-        user_id, album_key = int(context.args[0]), context.args[1]
-        invite = await context.bot.create_chat_invite_link(chat_id=CHANNEL_IDS[album_key], member_limit=1)
-        # Success message to user
-        msg = get_text('ti', 'success_user_msg', album_title=album_key.upper())
-        await context.bot.send_message(chat_id=user_id, text=f"{msg}\n\n🔗 <b>Link:</b> {invite.invite_link}", parse_mode=ParseMode.HTML)
-        # Final encouraging message
-        await context.bot.send_message(chat_id=user_id, text=get_text('ti', 'feedback_invite'), parse_mode=ParseMode.HTML)
-        await update.message.reply_text(f"✅ User {user_id} Approved.")
-    except: await update.message.reply_text("Usage: /approve [id] [volX]")
+        uid, vol = int(context.args[0]), context.args[1]
+        link = await context.bot.create_chat_invite_link(CHANNELS[vol], member_limit=1)
+        # 100X Success Message
+        await context.bot.send_message(uid, t('ti', 'user_success', album=vol.upper()), parse_mode=ParseMode.HTML)
+        await context.bot.send_message(uid, f"🎁 <b>Your Link:</b> {link.invite_link}\n\n{t('ti', 'feedback_link')}", parse_mode=ParseMode.HTML)
+        await update.message.reply_text(f"✅ User {uid} approved for {vol}")
+    except Exception as e: await update.message.reply_text(f"❌ Error: {e}")
 
 def main():
-    app = Application.builder().token(TELEGRAM_TOKEN).build()
+    app = Application.builder().token(TOKEN).build()
     
     conv = ConversationHandler(
-        entry_points=[CommandHandler("start", start_command)],
+        entry_points=[CommandHandler("start", start)],
         states={
-            START_STAGE: [CallbackQueryHandler(lang_selected, pattern="^lang_")],
-            WELCOME_STAGE: [CallbackQueryHandler(main_menu, pattern="^go_to_menu$")],
-            MENU_STAGE: [
-                CallbackQueryHandler(album_details, pattern="^buy_"),
-                CallbackQueryHandler(guide_screen, pattern="^go_guide$"),
-                CallbackQueryHandler(help_screen, pattern="^go_help$"),
-                CallbackQueryHandler(start_command, pattern="^restart$")
+            CHOOSING_LANG: [CallbackQueryHandler(welcome_screen, pattern="^l_")],
+            GREETING: [CallbackQueryHandler(main_menu, pattern="menu"), CallbackQueryHandler(start, pattern="start")],
+            NAVIGATING_MENU: [
+                CallbackQueryHandler(album_selected, pattern="^buy_"),
+                CallbackQueryHandler(show_guide, pattern="guide"),
+                CallbackQueryHandler(show_help, pattern="help"),
+                CallbackQueryHandler(start, pattern="start")
             ],
-            LOCATION_STAGE: [
-                CallbackQueryHandler(payment_screen, pattern="^loc_"),
-                CallbackQueryHandler(main_menu, pattern="^go_to_menu$")
+            SELECTING_LOC: [
+                CallbackQueryHandler(payment_info, pattern="^loc_"),
+                CallbackQueryHandler(main_menu, pattern="menu")
             ],
-            PROOF_STAGE: [
-                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, proof_handler),
-                CallbackQueryHandler(main_menu, pattern="^go_to_menu$"),
-                CallbackQueryHandler(help_screen, pattern="^go_help$")
+            UPLOADING_PROOF: [
+                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, handle_proof),
+                CallbackQueryHandler(show_help, pattern="help"),
+                CallbackQueryHandler(main_menu, pattern="menu")
             ]
         },
-        fallbacks=[CommandHandler("start", start_command)]
+        fallbacks=[CommandHandler("start", start)]
     )
     
     app.add_handler(conv)
-    app.add_handler(CommandHandler("approve", approve_cmd))
+    app.add_handler(CommandHandler("approve", approve_logic))
     app.run_polling()
 
 if __name__ == "__main__": main()
