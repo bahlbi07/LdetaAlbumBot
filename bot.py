@@ -287,8 +287,8 @@ def main() -> None:
 
     # Add all handlers to the application
     application.add_handler(conv_handler)
-    application.add_handler(CommandHandler("approve", approve_command, filters=filters.User(username=ADMIN_USERNAME)))
-    application.add_handler(CommandHandler("reject", reject_command, filters=filters.User(username=ADMIN_USERNAME)))
+    application.add_handler(CommandHandler("approve", approve_command, filters=filters.User(username=f"@{ADMIN_USERNAME}")))
+    application.add_handler(CommandHandler("reject", reject_command, filters=filters.User(username=f"@{ADMIN_USERNAME}")))
 
     logging.info("Starting bot polling..."); application.run_polling()
 
