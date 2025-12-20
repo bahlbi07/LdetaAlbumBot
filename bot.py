@@ -267,8 +267,7 @@ def main() -> None:
         return
 
     web_server_thread = threading.Thread(target=run_web_server); web_server_thread.daemon = True; web_server_thread.start()
-    application = Application.builder().token(TELEGRAM_TOKEN).job_queue().build(); bot_app = application
-    
+    application = Application.builder().token(TELEGRAM_TOKEN).build()    
     # Conversation handler for the main user flow
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start_command)],
