@@ -1,132 +1,145 @@
 TRANSLATIONS = {
-    'en': {
-        'language_select_prompt': "Please choose your language:",
-        'welcome_message': "Welcome <b>{user_name}</b>!\n\nThis is the official digital store for the albums of the <b>'Lideta Mariam Choir, Qumsna Mekelle'</b>.",
-        'main_menu_prompt': "Please select an option below:",
-        'ask_location': "Great! Please select your location to see payment options:",
-        'album_vol_4': "🎶 Eyesus (Vol. 4) - 300 ETB",
-        'album_vol_3': "🎶 Ne'aka Amina (Vol. 3) - 100 ETB",
-        'album_vol_2': "🎶 Tesfa Alona (Vol. 2) - 100 ETB",
-        'album_vol_1': "🎶 Kezimrelka (Vol. 1) - 100 ETB",
-        'location_in_button': "🇪🇹 Inside Ethiopia",
-        'location_out_button': "🌍 Outside Ethiopia",
-        'how_to_buy_button': "📖 How to Buy Guide",
-        'help_button': "❔ Help",
-        'home_button': "🏠 Main Menu",
-        'back_button': "⬅️ Back",
-        'payment_instructions_ethiopia': (
-            "You are purchasing <b>{album_title}</b> for <b>{album_price} ETB</b>.\n\n"
-            "<b><u>1. CBE:</u></b> 1000639550323\n"
-            "<b><u>2. Abyssinia:</u></b> 196302506\n\n"
-            "⚠️ <b>Next Step:</b> Send Transaction ID or Screenshot here."
-        ),
-        'location_out_unavailable': "International payments coming soon!",
-        'slip_received': "Thank you! Admin will verify and send the link shortly.",
-        'guide_text': "<b>How to Buy:</b>\n1. Select Album\n2. Choose Location\n3. Pay via Bank\n4. Send Proof (ID or Photo)\n5. Receive Link after approval.",
-        'help_text_main_menu': "Select an album to start. For support contact @Dmtsibereket.",
-        'admin_notification': "🔔 **New Payment!**\nUser: {user_mention}\nAlbum: {album_title}\n\nApprove: `/approve {user_id} {album_key}`\nReject: `/reject {user_id}`",
-        'payment_success_user_privacy': "🎉 Success! Use this link to join: {invite_link}",
-        'payment_rejected_user': "❌ Payment verification failed. Contact @Dmtsibereket.",
-    },
-
     'ti': {
-        'welcome_language': "ሰላም <b>{user_name}</b>! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ንኽትቅጽል ቋንቋ ምረጽ፦",
-        'welcome_message': "እንኳዕ ብደሓን ናብ ወግዓዊ ዲጂታል መሸጢ ኣልበማት\n<b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> በጻሕካ።",
-        'main_menu_prompt': "በጃኻ ካብዞም ዝስዕቡ ሓደ ምረጽ፦",
-        'ask_location': "ብሉጽ! ክፍሊት ንምፍጻም በጃኻ ኣበይ እንደለኻ ምረጽ፦",
-        'album_vol_4': "🎶 እየሱስ (Vol. 4) - 300 ብር",
-        'album_vol_3': "🎶 ንዓኻ ኣሚና (Vol. 3) - 100 ብር",
-        'album_vol_2': "🎶 ተስፋ ኣሎና (Vol. 2) - 100 ብር",
-        'album_vol_1': "🎶 ክዝምረልካ (Vol. 1) - 100 ብር",
-        'location_in_button': "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ",
-        'location_out_button': "🌍 ካብ ኢትዮጵያ ወጻኢ",
-        'how_to_buy_button': "📖 ኣገባብ ኣተዓዳድጋ",
+        'welcome_msg': "እንቋዕ ናብ ወግዓዊ መሸጢ ኣልበማት <b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> ብደሓን መጻእካ <b>{user_name}</b>።\n\nእዚ ቦት ብዝተረጋገጸን ቅልጡፍን ኣገባብ መዝሙራት ክትዕድግ ይሕግዘካ።",
+        'continue_button': "ይቐጽል ➡️",
+        'main_menu_prompt': "በጃኹም ክትዕድግዎ እትደልዩ ኣልበም ምረጹ፦",
+        'album_vol_4': "🎶 እየሱስ (Vol 4) - 300 ብር",
+        'album_vol_3': "🎶 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
+        'album_vol_2': "🎶 ተስፋ ኣሎና (Vol 2) - 100 ብር",
+        'album_vol_1': "🎶 ክዝምረልካ (Vol 1) - 100 ብር",
+        'guide_button': "📖 ኣገባብ ኣተዓዳድጋ (መምርሒ)",
         'help_button': "❔ ሓገዝ",
-        'home_button': "🏠 ናብ ቀንዲ ገጽ",
         'back_button': "⬅️ ተመለስ",
-        'payment_instructions_ethiopia': (
-            "ን <b>{album_title}</b> ብ<b>{album_price} ብር</b> ትዕድግ ኣለኻ።\n\n"
-            "<b><u>1. ንግዲ ባንክ (CBE):</u></b> 1000639550323\n"
-            "<b><u>2. ባንኪ ኣቢሲንያ (BOA):</u></b> 196302506\n\n"
-            "⚠️ <b>ዝቕጽል ስጉምቲ:</b> ክፍሊት ምስ ፈጸምካ መረጋገጺ (ID ወይ Screenshot) ናብዚ ቦት ስደድ።"
+        'back_to_lang': "🌐 ናብ ቋንቋ መምረጺ",
+        'ask_loc_text': "ክፍሊት ንምፍጻም በጃኹም ዘለኹምዎ ቦታ ምረጹ፦",
+        'loc_in': "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ",
+        'loc_out': "🌍 ካብ ኢትዮጵያ ወጻኢ",
+        'loc_out_unavailable': "ይቕሬታ! ካብ ኢትዮጵያ ወጻኢ ዝግበር ክፍሊት ንግዚኡ ኣብ ስራሕ ስለዘየለ፣ በጃኹም ብኻልእ ኣማራጺ ተጠቐሙ።",
+        'payment_instructions': (
+            "<b>ን ኣልበም {album_title}</b> ንምዕዳግ <b>{price} ብር</b> በዞም ዝስዕቡ ሕሳብ ባንክታት ይኽፈሉ፦\n\n"
+            "🏦 <b>ንግዲ ባንክ ኢትዮጵያ (CBE):</b>\n<code>1000639550323</code>\n"
+            "🏦 <b>ባንኪ ኣቢሲንያ (BOA):</b>\n<code>196302506</code>\n\n"
+            "🙋‍♂️ <b>ክቡር ዓሚል:</b>\n"
+            "• ክፍሊት ምስ ፈጸሙ ደረሰኝ ብፎቶ (Screenshot) ስደዱልና።\n"
+            "• ኣድሚን ምስ ኣረጋገጾ መልእኽቲ ክበጽሓኩም እዩ።"
         ),
-        'location_out_unavailable': "ኣብ ወጻኢ ንትርከቡ ዓማዊል ኣገልግሎትና ኣብ ምድላው ንርከብ።",
-        'slip_received': "የቐንየልና! ናይ ክፍያ ሓበሬታኻ ተቐቢልናዮ ኣለና። ሓደ ኣካያዲ ምስ ኣረጋገጾ መላግቦ (link) ክንሰደልካ ኢና።",
-        'guide_text': (
-            "<b>መምርሒ ኣገባብ ኣተዓዳድጋ፦</b>\n\n"
-            "1. ክትዕድጎ እትደሊ <b>ኣልበም</b> ምረጽ።\n"
-            "2. ዘለኻዮ <b>ቦታ</b> ምረጽ (ኣብ ውሽጢ ኢትዮጵያ)።\n"
-            "3. ብባንክ <b>ክፍሊት</b> ፈጽም።\n"
-            "4. ናይቲ ዝኸፈልካሉ <b>መረጋገጺ</b> (Transaction ID ወይ ስእሊ) ናብዚ ቦት ስደድ።\n"
-            "5. ኣካያዲ ምስ ኣረጋገጾ፡ ናይቲ ኣልበም <b>መላግቦ (link)</b> ክለኣኸልካ እዩ።"
+        'proof_received_msg': "✅ የቐንየልና! መረጋገጺኹም ተቐቢልና ኣለና። ኣድሚን ምስ ኣረጋገጾ ናይቲ ቻናል መላግቦ ክሰደልኩም እዩ። ብትዕግስቲ ጽንሑ።",
+        'full_guide': (
+            "<b>ቅደም-ሰዓብ ኣገባብ ኣተዓዳድጋ፦</b>\n\n"
+            "1️⃣ ቋንቋኹም ምረጹ።\n"
+            "2️⃣ ክትዕድግዎ እትደልዩ ኣልበም ምረጹ።\n"
+            "3️⃣ ቦታኹም (ኢትዮጵያ) ምረጹ።\n"
+            "4️⃣ በቶም ዝተዋህቡ ቁጽሪ ሕሳብ ባንክታት ክፍሊት ፈጽሙ።\n"
+            "5️⃣ ናይ ክፍሊት መረጋገጺ (Screenshot) ናብዚ ቦት ስደዱ።\n"
+            "6️⃣ ብኣውቶማቲክ ናብቲ ቻናል ክትጽንበሩ ኢኹም።"
         ),
-        'help_text_main_menu': "ዝኾነ ጸገም እንተጋጢሙካ ወይ ሓገዝ እንተደሊኻ ብ @Dmtsibereket ተራኸበና።",
-        'payment_success_user_privacy': "🎉 እንቋዕ ደስ በለካ! ክፍሊትካ ተረጋጊጹ እዩ። በዚ መላግቦ ተጠቒምካ ተጸንበር፦\n🔗 <b>{invite_link}</b>",
-        'payment_rejected_user': "❌ ይቕሬታ ክፍሊትካ ክነረጋግጽ ኣይከኣልናን። ንሓገዝ @Dmtsibereket ተራኸብ።",
+        'help_text_main': "ኣብዚ ገጽ እዚ ዝተፈላለዩ ኣልበማት መዘምራን ልደታ ማርያም ይርከቡ። ንምዕዳግ ሓደ ካብኣቶም ይጥውቁ።",
+        'help_text_payment': "ክፍሊት ምስ ፈጸሙ፣ ነቲ ደረሰኝ ብፎቶ ናብዚ ቦት ክትሰድዎ ኣለኩም። እዚ ምስ ተገብረ ጥራይ እዩ እቲ ዕድጊት ዝረጋገጽ።",
+        'success_user_msg': "🎉 <b>እንቋዕ ደስ በለኩም!</b>\nንኣልበም <b>{album_title}</b> ብዝግባእ ዓዲግኩም ኣለኹም። ተባረኹ!",
+        'privacy_fallback_msg': (
+            "ሰላም <b>{user_name}</b>፣ ብምኽንያት ናይ ቴሌግራም ሴቲንግኩም (Privacy) ብኣውቶማቲክ ክነእትወኩም ኣይከኣልናን።\n\n"
+            "በጃኹም ነዚ ዝስዕብ መላግቦ ተጠቒምኩም ጆይን በሉ፦\n{invite_link}"
+        ),
     },
-
     'am': {
-        'welcome_language': "ሰላም <b>{user_name}</b>! እንኳን ደህና መጡ።\n\nእባክዎ ለመቀጠል ቋንቋ ይምረጡ:",
-        'welcome_message': "እንኳን ወደ <b>'የልደታ ማርያም መዘምራን ቁምስና መቀሌ'</b> ይፋዊ ዲጂታል የአልበም መሸጫ በደህና መጡ።",
-        'main_menu_prompt': "እባክዎ ከታች ካሉት አማራጮች አንዱን ይምረጡ:",
-        'ask_location': "በጣም ጥሩ! ክፍያ ለመፈጸም እባክዎ ያሉበትን ቦታ ይምረጡ:",
-        'album_vol_4': "🎶 ኢየሱስ (Vol. 4) - 300 ብር",
-        'album_vol_3': "🎶 አንተን አምና (Vol. 3) - 100 ብር",
-        'album_vol_2': "🎶 ተስፋ አለን (Vol. 2) - 100 ብር",
-        'album_vol_1': "🎶 ልዘምርልህ (Vol. 1) - 100 ብር",
-        'location_in_button': "🇪🇹 በኢትዮጵያ ውስጥ",
-        'location_out_button': "🌍 ከኢትዮጵያ ውጪ",
-        'how_to_buy_button': "📖 እንዴት መግዛት ይቻላል",
+        'welcome_msg': "ወደ <b>'የልደታ ማርያም መዘምራን ቁምስና መቀሌ'</b> ይፋዊ አልበም መሸጫ በደህና መጡ <b>{user_name}</b>።\n\nይህ ቦት መዝሙራትን በቀላሉ ለመግዛት ይረዳዎታል።",
+        'continue_button': "ይቀጥሉ ➡️",
+        'main_menu_prompt': "እባክዎ መግዛት የሚፈልጉትን አልበም ይምረጡ፦",
+        'album_vol_4': "🎶 ኢየሱስ (Vol 4) - 300 ብር",
+        'album_vol_3': "🎶 አንተን አምና (Vol 3) - 100 ብር",
+        'album_vol_2': "🎶 ተስፋ አለን (Vol 2) - 100 ብር",
+        'album_vol_1': "🎶 ልዘምርልህ (Vol 1) - 100 ብር",
+        'guide_button': "📖 የግዢ መመሪያ",
         'help_button': "❔ እርዳታ",
-        'home_button': "🏠 ወደ ዋናው ምናሌ",
         'back_button': "⬅️ ተመለስ",
-        'payment_instructions_ethiopia': (
-            "<b>{album_title}</b>ን በ<b>{album_price} ብር</b> እየገዙ ነው።\n\n"
-            "<b><u>1. ንግድ ባንክ (CBE):</u></b> 1000639550323\n"
-            "<b><u>2. አቢሲንያ ባንክ (BOA):</u></b> 196302506\n\n"
-            "⚠️ <b>ቀጣይ እርምጃ:</b> የከፈሉበትን ማረጋገጫ (ID ወይም Screenshot) እዚህ ይላኩ።"
+        'back_to_lang': "🌐 ወደ ቋንቋ ምርጫ",
+        'ask_loc_text': "ክፍያ ለመፈጸም እባክዎ ያሉበትን ቦታ ይምረጡ፦",
+        'loc_in': "🇪🇹 በኢትዮጵያ ውስጥ",
+        'loc_out': "🌍 ከኢትዮጵያ ውጭ",
+        'loc_out_unavailable': "ይቅርታ! ከኢትዮጵያ ውጭ የሚደረግ ክፍያ ለጊዜው አልተጀመረም። እባክዎ ሌላ አማራጭ ይጠቀሙ።",
+        'payment_instructions': (
+            "<b>አልበም {album_title}</b> ለመግዛት <b>{price} ብር</b> በእነዚህ የባንክ አካውንቶች ይክፈሉ፦\n\n"
+            "🏦 <b>የኢትዮጵያ ንግድ ባንክ (CBE):</b>\n<code>1000639550323</code>\n"
+            "🏦 <b>አቢሲንያ ባንክ (BOA):</b>\n<code>196302506</code>\n\n"
+            "🙋‍♂️ <b>ክቡር ደንበኛ:</b>\n"
+            "• ክፍያ ከፈጸሙ በኋላ ደረሰኙን በፎቶ (Screenshot) ይላኩ።\n"
+            "• አድሚኑ ሲያረጋግጥ የማሳወቂያ መልእክት ይደርስዎታል።"
         ),
-        'location_out_unavailable': "ከኢትዮጵያ ውጭ ላላችሁ ደንበኞች አገልግሎቱ በቅርቡ ይጀምራል።",
-        'slip_received': "እናመሰግናለን! የክፍያ መረጃዎ ደርሶናል። አስተዳዳሪው ሲያረጋግጥ ሊንኩን ይልክልዎታል።",
-        'guide_text': (
-            "<b>እንዴት መግዛት ይቻላል፦</b>\n\n"
-            "1. መግዛት የሚፈልጉትን <b>አልበም</b> ይምረጡ።\n"
-            "2. ያሉበትን <b>ቦታ</b> ይምረጡ።\n"
-            "3. በባንክ <b>ክፍያ</b> ይፈጽሙ።\n"
-            "4. የከፈሉበትን <b>ማረጋገጫ</b> (ID ወይም ፎቶ) እዚህ ይላኩ።\n"
-            "5. ክፍያው ሲረጋገጥ የአልበሙን <b>ሊንክ</b> ይላክላችኋል።"
+        'proof_received_msg': "✅ እናመሰግናለን! መረጃዎ ደርሶናል። አድሚኑ ሲያረጋግጥ ሊንኩ ይላክለዎታል። በትዕግስት ይጠብቁ።",
+        'success_user_msg': "🎉 <b>እንኳን ደስ አለዎት!</b>\n<b>{album_title}</b> አልበምን በትክክል ገዝተዋል። ተባረኩ!",
+        'privacy_fallback_msg': (
+            "ሰላም <b>{user_name}</b>፣ በቴሌግራም የፕራይቬሲ ሴቲንግዎ ምክንያት በራስ-ሰር ልንጨምርዎ አልቻልንም።\n\n"
+            "እባክዎ ይህንን ሊንክ ተጠቅመው ይቀላቀሉ፦\n{invite_link}"
         ),
-        'help_text_main_menu': "ለማንኛውም ጥያቄ በ @Dmtsibereket ያግኙን።",
-        'payment_success_user_privacy': "🎉 እንኳን ደስ አለዎት! ክፍያዎ ተረጋግጧል። በዚህ ሊንክ በመግባት አልበሙን ማግኘት ይችላሉ፦\n🔗 <b>{invite_link}</b>",
-        'payment_rejected_user': "❌ ይቅርታ የላኩት መረጃ ሊረጋገጥ አልቻለም። ለተጨማሪ መረጃ @Dmtsibereket ያግኙ።",
+    },
+    'en': {
+        'welcome_msg': "Welcome to the official <b>'Lideta Mariam Choir'</b> Digital Store, <b>{user_name}</b>.\n\nThis bot helps you purchase our spiritual albums securely.",
+        'continue_button': "Continue ➡️",
+        'main_menu_prompt': "Please select the album you wish to purchase:",
+        'album_vol_4': "🎶 Eyesus (Vol 4) - 300 ETB",
+        'album_vol_3': "🎶 Ne'aka Amina (Vol 3) - 100 ETB",
+        'album_vol_2': "🎶 Tesfa Alona (Vol 2) - 100 ETB",
+        'album_vol_1': "🎶 Kezimrelka (Vol 1) - 100 ETB",
+        'guide_button': "📖 Purchase Guide",
+        'help_button': "❔ Help",
+        'back_button': "⬅️ Back",
+        'back_to_lang': "🌐 Back to Languages",
+        'ask_loc_text': "Please select your location for payment:",
+        'loc_in': "🇪🇹 Inside Ethiopia",
+        'loc_out': "🌍 Outside Ethiopia",
+        'loc_out_unavailable': "Sorry! International payments are currently unavailable. Please use an alternative method.",
+        'payment_instructions': (
+            "To buy <b>{album_title}</b> for <b>{price} ETB</b>, please use:\n\n"
+            "🏦 <b>CBE:</b> <code>1000639550323</code>\n"
+            "🏦 <b>Abyssinia:</b> <code>196302506</code>\n\n"
+            "⚠️ <b>Note:</b> Send a screenshot of your payment to this bot for verification."
+        ),
+        'proof_received_msg': "✅ Received! An admin will verify your payment and send the access link shortly. Thank you for your patience.",
+        'success_user_msg': "🎉 <b>Congratulations!</b>\nYou have successfully purchased <b>{album_title}</b>. God bless you!",
     },
     'om': {
-        # ... (Similar structure for Oromo)
+        'welcome_msg': "Gara bot gurgurtaa albamii <b>'Faarfattoota Lideta Mariam'</b> nagaan dhuftan <b>{user_name}</b>.\n\nBot kun karaa salphaa ta'een albamii bitachuuf isin gargaara.",
+        'continue_button': "Itti fufi ➡️",
+        'main_menu_prompt': "Maaloo albamii bitachuu barbaaddan filadhaa:",
+        'album_vol_4': "🎶 Iyyasuus (Vol 4) - 300 ETB",
+        'album_vol_3': "🎶 Si Amannee (Vol 3) - 100 ETB",
+        'album_vol_2': "🎶 Abdii Qabna (Vol 2) - 100 ETB",
+        'album_vol_1': "🎶 Sin Faarsina (Vol 1) - 100 ETB",
+        'guide_button': "📖 Akkamitti bitama",
+        'help_button': "❔ Gargaarsa",
+        'back_button': "⬅️ Duubatti",
+        'back_to_lang': "🌐 Afaan Filadhu",
+        'ask_loc_text': "Kaffaltii raawwachuuf iddoo jirtan filadhaa:",
+        'loc_in': "🇪🇹 Itoophiyaa Keessa",
+        'loc_out': "🌍 Itoophiyaan Alatti",
+        'loc_out_unavailable': "Dhiifama! Itoophiyaan alatti kaffaltii raawwachuun yeroof hin jalqabne.",
+        'payment_instructions': (
+            "<b>Albamii {album_title}</b> bitachuuf <b>{price} ETB</b> kaffaltii raawwadhaa:\n\n"
+            "🏦 <b>CBE:</b> <code>1000639550323</code>\n"
+            "🏦 <b>Abyssinia:</b> <code>196302506</code>\n\n"
+            "🙋‍♂️ <b>Maamiloota keenyaaf:</b>\n"
+            "• Kaffaltii raawwattanii booda nagahee (Screenshot) nuuf ergaa.\n"
+            "• Bulchaan keenya yeroo mirkaneessu ergaan isin qaqqaba."
+        ),
+        'proof_received_msg': "✅ Nagaheen keessan nu ga'eera. Bulchaan keenya yeroo mirkaneessu liinkii isiniif ergina. Obsaan eegaa.",
     },
     'saho': {
-        # For now, using the same Tigrinya text as base
-        'welcome_language': "ሰላም <b>{user_name}</b>! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ንኽትቅጽል ቋንቋ ምረጽ፦",
-        'welcome_message': "እንኳዕ ብደሓን ናብ ወግዓዊ ዲጂታል መሸጢ ኣልበማት\n<b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> በጻሕካ።",
-        'main_menu_prompt': "በጃኻ ካብዞም ዝስዕቡ ሓደ ምረጽ፦",
-        'album_vol_4': "🎶 እየሱስ (Vol. 4) - 300 ብር",
-        'album_vol_3': "🎶 ንዓኻ ኣሚና (Vol. 3) - 100 ብር",
-        'album_vol_2': "🎶 ተስፋ ኣሎና (Vol. 2) - 100 ብር",
-        'album_vol_1': "🎶 ክዝምረልካ (Vol. 1) - 100 ብር",
-        'location_in_button': "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ",
-        'location_out_button': "🌍 ካብ ኢትዮጵያ ወጻኢ",
-        'how_to_buy_button': "📖 ኣገባብ ኣተዓዳድጋ",
+        # Using Tigrinya as base for Saho placeholder
+        'welcome_msg': "እንቋዕ ናብ ወግዓዊ መሸጢ ኣልበማት <b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> ብደሓን መጻእካ <b>{user_name}</b>።",
+        'continue_button': "ይቐጽል ➡️",
+        'main_menu_prompt': "በጃኹም ክትዕድግዎ እትደሊ ኣልበም ምረጽ፦",
+        'album_vol_4': "🎶 እየሱስ (Vol 4) - 300 ብር",
+        'album_vol_3': "🎶 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
+        'album_vol_2': "🎶 ተስፋ ኣሎና (Vol 2) - 100 ብር",
+        'album_vol_1': "🎶 ክዝምረልካ (Vol 1) - 100 ብር",
+        'guide_button': "📖 ኣገባብ ኣተዓዳድጋ",
         'help_button': "❔ ሓገዝ",
-        'home_button': "🏠 ናብ ቀንዲ ገጽ",
         'back_button': "⬅️ ተመለስ",
-        'ask_location': "ብሉጽ! ክፍሊት ንምፍጻም በጃኻ ኣበይ እንደለኻ ምረጽ፦",
-        'payment_instructions_ethiopia': (
-             "ክፍሊት ንምፍጻም <b><u>1. ንግዲ ባንክ:</u></b> 1000639550323 ወይ <b><u>2. ባንኪ ኣቢሲንያ:</u></b> 196302506 ተጠቐም"
-        ),
-        'location_out_unavailable': "ኣብ ወጻኢ ንትርከቡ ዓማዊል ኣገልግሎትና ኣብ ምድላው ንርከብ።",
-        'slip_received': "የቐንየልና! ናይ ክፍያ ሓበሬታኻ ተቐቢልናዮ ኣለና።",
-        'guide_text': "1. ኣልበም ምረጽ 2. ቦታ ምረጽ 3. ክፍሊት ፈጽም 4. መረጋገጺ ስደድ",
-        'help_text_main_menu': "ንሓገዝ ብ @Dmtsibereket ተራኸበና።",
-        'payment_success_user_privacy': "🎉 እንቋዕ ደስ በለካ! በዚ መላግቦ ተጠቒምካ ተጸንበር፦\n🔗 <b>{invite_link}</b>",
-        'payment_rejected_user': "❌ ይቅርታ ክፍሊትካ ክነረጋግጽ ኣይከኣልናን።",
+        'back_to_lang': "🌐 ናብ ቋንቋ መምረጺ",
+        'ask_loc_text': "ክፍሊት ንምፍጻም በጃኹም ዘለኹምዎ ቦታ ምረጹ፦",
+        'loc_in': "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ",
+        'loc_out': "🌍 ካብ ኢትዮጵያ ወጻኢ",
+        'payment_instructions': "🏦 CBE: 1000639550323 | BOA: 196302506",
+        'proof_received_msg': "✅ የቐንየልና! መረጋገጺኹም ተቐቢልና ኣለና።",
     }
 }
