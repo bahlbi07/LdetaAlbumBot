@@ -1,171 +1,280 @@
 # translations.py
 
 TRANSLATIONS = {
+    # ====================================================================================
+    # English Translations
+    # ====================================================================================
     'en': {
         'welcome_language': "Welcome <b>{user_name}</b>!\n\nPlease choose your language to continue:",
-        'ask_location': "Thank you for choosing English.\n\nPlease select your location:",
-        'location_in_button': "🇪🇹 Inside Ethiopia",
-        'location_out_button': "🌍 Outside Ethiopia",
-        'welcome_main': (
-            "Welcome to the official sales bot for the 4th album of the\n"
-            "<b>'Lideta Mariam Choir, Qumsna Mekelle'</b>."
+        'main_menu': (
+            "Welcome to the official digital store for the albums of the\n"
+            "<b>'Lideta Mariam Choir, Qumsna Mekelle'</b>.\n\n"
+            "Please select an album to purchase:"
         ),
-        'buy_album_button': "🛒 Purchase Album",
-        'about_album_button': "ℹ️ About This Album",
-        'back_to_start_button': "⬅️ Back to Language Select",
-        'back_to_main_menu_button': "⬅️ Back to Main Menu",
-        'slip_sent_button': "✅ I have sent the payment slip",
+        'album_vol_4': "Eyesus (Vol. 4) - 300 ETB",
+        'album_vol_3': "Ne'aka Amina (Vol. 3) - 100 ETB",
+        'album_vol_2': "Tesfa Alona (Vol. 2) - 100 ETB",
+        'album_vol_1': "Kezimrelka (Vol. 1) - 100 ETB",
+        'how_to_buy_button': "📖 How to Buy Guide",
+        'back_to_main_menu_button': "⬅️ Back to Album List",
+        'home_button': "🏠 Back to Main Menu",
+        'help_button': "❔ Help",
+        'ask_payment_method': "Please confirm your payment method.\nSend the **Transaction ID** as a text message, or send the **Payment Slip (Screenshot)** as a photo.",
         'payment_instructions': (
-            "Excellent choice! The price of the album is <b>{album_price} ETB</b>.\n\n"
+            "Excellent choice! You are purchasing <b>{album_title}</b> for <b>{album_price} ETB</b>.\n\n"
             "To complete your purchase, please use one of the following methods:\n\n"
             "<b><u>1. Commercial Bank of Ethiopia (CBE):</u></b>\n"
-            "<b>Account Name:</b> [ ማሕበር መዘምራን ልደታ ማርያም ቁ.መቐለ]\n"
-            "<b>Account Number:</b> [1000639550323]\n\n"
+            "<b>Name:</b> [YOUR_CBE_ACCOUNT_NAME_HERE]\n"
+            "<b>Account Number:</b> [YOUR_CBE_ACCOUNT_NUMBER_HERE]\n\n"
             "<b><u>2. Bank of Abyssinia (BOA):</u></b>\n"
-            "<b>Account Name:</b> [ማሕበር መዘምራን ልደታ ማርያም]\n"
-            "<b>Account Number:</b> [196302506]\n\n"
-            "⚠️ <b>VERY IMPORTANT:</b> After you have made the payment, you **MUST** send the receipt (screenshot) to our admin at @Dmtsibereket.\n\n"
-            "Once you have sent the slip, please press the button below."
+            "<b>Name:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
+            "<b>Account Number:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
+            "⚠️ <b>VERY IMPORTANT:</b>\n"
+            "After paying, please come back here and send us the **Transaction ID** (e.g., `ET123...`) or the payment **Screenshot**."
         ),
-        'about_album_text': (
-            "<b><u>About the 4th Album</u></b>\n\n"
-            "This is the fourth album by the 'Lideta Mariam Choir, Qumsna Mekelle', "
-            "filled with new and spiritually uplifting hymns. Your purchase is a great support for our ministry.\n\n"
-            "Thank you and God bless you."
+        'location_out_unavailable': "Service for customers outside Ethiopia is currently under construction. We apologize for the inconvenience.",
+        'help_text_main': "<b>GUIDE:</b> This is the main menu. You can select any album to start the purchase process. If you need a detailed guide, click the 'How to Buy Guide' button.",
+        'help_text_payment': "<b>GUIDE:</b> On this page, please make your payment using the provided bank details. Afterwards, you must send either the Transaction ID (as text) or the payment slip (as a photo) to this bot to proceed.",
+        'slip_received': "Thank you! We have received your payment information. An admin will now verify it. This may take some time. You will receive a notification as soon as it is approved. Please be patient.",
+        'payment_notif_admin': (
+            "🔔 **New Payment Submission!** 🔔\n\n"
+            "<b>User:</b> {user_mention} (ID: `{user_id}`)\n"
+            "<b>Album:</b> {album_title}\n\n"
+            "The user has submitted payment information. Please check your direct messages from them for the Transaction ID or Screenshot and verify the payment.\n\n"
+            "➡️ To approve: Click `/approve {user_id} {album_key}`\n"
+            "➡️ To reject: Click `/reject {user_id}`"
         ),
-        'saho_unavailable': "The Saho (Irob) language section is currently under construction. Please choose another language for now.",
-        'wait_for_verification': "Thank you! We have received your confirmation. An admin will now verify your payment slip. You will receive a message with the album link shortly. Please be patient.",
-        'payment_notif_admin': "🔔 New Payment Slip Sent!\n\nUser {user_mention} (ID: `{user_id}`) has confirmed they sent a payment slip. Please check your messages from this user and verify the payment.\n\nOnce verified, use:\n`/approve {user_id}`\n\nIf the payment is invalid, use:\n`/reject {user_id}`",
-        'approve_usage': "⚠️ Incorrect Usage!\nUse: /approve <user_id>\nExample: /approve 123456789",
-        'reject_usage': "⚠️ Incorrect Usage!\nUse: /reject <user_id>\nExample: /reject 123456789",
-        'approval_success_admin': "✅ Success! Invite link has been sent to user {user_id}.",
+        'approve_usage': "⚠️ **Incorrect Usage!**\nUse: `/approve <user_id> <album_key>`\nExample: `/approve 123456789 vol4`",
+        'reject_usage': "⚠️ **Incorrect Usage!**\nUse: `/reject <user_id>`\nExample: `/reject 123456789`",
+        'approval_success_admin': "✅ Success! Invite link for <b>{album_title}</b> has been sent to user {user_id}.",
         'rejection_success_admin': "✅ Rejection notice has been sent to user {user_id}.",
-        'approval_not_admin': "❌ Access Denied! This command is for admins only.",
+        'approval_not_admin': "❌ Access Denied! This command is for the admin only.",
         'payment_success_user': (
-            "✅ <b>Your payment has been successfully verified!</b> ✅\n\n"
-            "Thank you so much for your support. We pray that these hymns bring blessings to your life.\n\n"
-            "You can now join the private channel using this **one-time** invite link:\n"
-            "<b>{invite_link}</b>"
+            "🎉 **Congratulations! Your payment is verified!** 🎉\n\n"
+            "Thank you for purchasing <b>{album_title}</b>. Your support for our ministry is deeply appreciated.\n\n"
+            "Click the link below to join the private channel. This is a **one-time** use link.\n"
+            "🔗 <b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ We are sorry, but there was an issue verifying your payment. Your request has been declined. If you believe this is a mistake, please contact our admin directly at @Dmtsibereket for assistance.",
+        'payment_rejected_user': "❌ We are sorry, but there was an issue verifying your payment. Your request has been declined. If you believe this is a mistake, please contact our admin directly at [@YOUR_ADMIN_USERNAME_HERE] for assistance.",
+        'feedback_prompt': "We hope you are being blessed by the hymns! In a few days, we will send you a message asking for your thoughts and feedback on the album.",
+        'feedback_request': "Hello {user_name}! We hope you have enjoyed the <b>{album_title}</b> album. We would be grateful if you could share your feedback or testimony with us. Your words are a great encouragement!",
     },
+
+    # ====================================================================================
+    # Tigrinya Translations
+    # ====================================================================================
     'ti': {
         'welcome_language': "ሰላም <b>{user_name}</b>! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ንኽትቅጽል ቋንቋ ምረጽ፦",
-        'ask_location': "ቋንቋ ትግርኛ መሪጽካ ኣለኻ።\n\nበጃኻ ኣበይ ከም ዘለኻ ምረጽ፦",
-        'location_in_button': "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ",
-        'location_out_button': "🌍 ካብ ኢትዮጵያ ወጻኢ",
-        'welcome_main': (
-            "እንኳዕ ብደሓን ናብ ወግዓዊ መሸጢ ቦት ናይ'ቲ ራብዓይ ኣልበም ናይ\n"
-            "<b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b>"
+        'main_menu': (
+            "እንኳዕ ብደሓን ናብ ወግዓዊ ዲጂታል መሸጢ ናይ ኣልበማት\n"
+            "<b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> በጻሕካ።\n\n"
+            "በጃኻ ክትዕድግ እትደሊ ኣልበም ምረጽ፦"
         ),
-        'buy_album_button': "🛒 ኣልበም ግዛእ",
-        'about_album_button': "ℹ️ ብዛዕባ እዚ ኣልበም",
-        'back_to_start_button': "⬅️ ናብ ቋንቋ ምምራጽ ተመለስ",
-        'back_to_main_menu_button': "⬅️ ናብ ቀንዲ ገጽ ተመለስ",
-        'slip_sent_button': "✅ ነቲ ደረሰኝ ለኣኸዮ ኣለኹ",
+        'album_vol_4': "እየሱስ (Vol. 4) - 300 ብር",
+        'album_vol_3': "ንዓኻ ኣሚና (Vol. 3) - 100 ብር",
+        'album_vol_2': "ተስፋ ኣሎና (Vol. 2) - 100 ብር",
+        'album_vol_1': "ክዝምረልካ (Vol. 1) - 100 ብር",
+        'how_to_buy_button': "📖 ኣገባብ ኣተዓዳድጋ",
+        'back_to_main_menu_button': "⬅️ ናብ ዝርዝር ኣልበማት ተመለስ",
+        'home_button': "🏠 ናብ ቀንዲ ገጽ",
+        'help_button': "❔ ሓገዝ",
+        'ask_payment_method': "በጃኻ ናይ ክፍያ መረጋገጺ ኣገባብካ ምረጽ።\nነቲ **Transaction ID** ከም ጽሑፍ፡ ወይ ነቲ **ናይ ክፍያ ደረሰኝ (Screenshot)** ከም ስእሊ ስደድ።",
         'payment_instructions': (
-            "ብሉጽ ምርጫ! ዋጋ ናይ'ዚ ኣልበም <b>{album_price} ብር</b> እዩ።\n\n"
+            "ብሉጽ ምርጫ! ንስኻ <b>{album_title}</b> ብ<b>{album_price} ብር</b> ትዕድግ ኣለኻ።\n\n"
             "ክፍሊት ንምፍጻም በዞም ዝስዕቡ ኣገባባት ተጠቐም፦\n\n"
             "<b><u>1. ንግዲ ባንክ ኢትዮጵያ (CBE):</u></b>\n"
-            "<b>ስም:</b> [ ማሕበር መዘምራን ልደታ ማርያም ቁ.መቐለ]\n"
-            "<b>ቁጽሪ ሕሳብ:</b> [1000639550323]\n\n"
+            "<b>ስም:</b> [YOUR_CBE_ACCOUNT_NAME_HERE]\n"
+            "<b>ቁጽሪ ሕሳብ:</b> [YOUR_CBE_ACCOUNT_NUMBER_HERE]\n\n"
             "<b><u>2. ባንኪ ኣቢሲንያ (BOA):</u></b>\n"
-            "<b>ስም:</b> [ማሕበር መዘምራን ልደታ ማርያም]\n"
-            "<b>ቁጽሪ ሕሳብ:</b> [196302506]\n\n"
-            "⚠️ <b>ኣዝዩ ኣገዳሲ:</b> ክፍሊትካ ምስ ፈጸምካ፡ ነቲ ደረሰኝ (screenshot) ናብ ኣካያዲና @Dmtsibereket ክትሰዶ **ግድን** እዩ።\n\n"
-            "ነቲ ደረሰኝ ምስ ሰደድካዮ፡ ነዛ ኣብ ታሕቲ ዘላ ቁልፊ ጠውቕ።"
+            "<b>ስም:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
+            "<b>ቁጽሪ ሕሳብ:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
+            "⚠️ <b>ኣዝዩ ኣገዳሲ:</b>\n"
+            "ክፍሊትካ ምስ ፈጸምካ፡ ናብዚ ተመሊስካ ነቲ **Transaction ID** (ንኣብነት፡ `ET123...`) ወይ ነቲ **Screenshot** ክትሰደልና ኣለካ።"
         ),
-        'about_album_text': (
-            "<b><u>ብዛዕባ ራብዓይ ኣልበም</u></b>\n\n"
-            "እዚ ብ'መዘምራን ልደታ ማርያም ቁምስና መቐለ' ዝተዳለወ ራብዓይ ኣልበም ኮይኑ፡ "
-            "ብዙሓት ሓደሽቲን መንፈሳውያን መዝሙራትን ዝሓዘ እዩ። ምዕዳግካ ንኣገልግሎትና ዓቢ ደገፍ እዩ።\n\n"
-            "የቐንየልና! እግዚኣብሔር ይባርኽካ።"
+        'location_out_unavailable': "ንደንበኛታትና ኣብ ወጻኢ ዚኸውን ኣገልግሎት ኣብዚ እዋን'ዚ ኣብ ስራሕ ይርከብ። ንዘጋጠመ ምድንጓይ ይቕሬታ ንሓትት።",
+        'help_text_main': "<b>መርሒ:</b> እዚ ቀንዲ ገጽ እዩ። ዝኾነ ኣልበም መሪጽካ ናይ ምዕዳግ መስርሕ ክትጅምር ትኽእል ኢኻ። ዝርዝር መምርሒ እንተደሊኻ፡ 'ኣገባብ ኣተዓዳድጋ' ዝብል ቁልፊ ጠውቕ።",
+        'help_text_payment': "<b>መርሒ:</b> ኣብዚ ገጽ'ዚ፡ በቶም ዝተዋህቡ ናይ ባንክ ሓበሬታታት ተጠቒምካ ክፍሊትካ ፈጽም። ድሕሪኡ፡ ነቲ Transaction ID (כמו ጽሑፍ) ወይ ነቲ ደረሰኝ (כמו ስእሊ) ናብዚ ቦት'ዚ ክትሰዶ ኣለካ።",
+        'slip_received': "የቐንየልና! ናይ ክፍያ ሓበሬታኻ ተቐቢልና ኣለና። ሓደ ኣካያዲ ሕጂ ከረጋግጾ እዩ። እዚ ቁሩብ ግዜ ክወስድ ይኽእል እዩ። ምስ ተረጋገጸ ብኡንብኡ መልእኽቲ ክንሰደልካ ኢና። በጃኻ ብትዕግስቲ ጽናሕ።",
+        'payment_notif_admin': (
+            "🔔 **ሓድሽ ናይ ክፍያ ሓበሬታ!** 🔔\n\n"
+            "<b>ተጠቃሚ:</b> {user_mention} (ID: `{user_id}`)\n"
+            "<b>ኣልበም:</b> {album_title}\n\n"
+            "እዚ ተጠቃሚ'ዚ ናይ ክፍያ ሓበሬታ ሰዲዱ ኣሎ። በጃኻ ናብ ውልቃዊ መልእኽቱ ኬድካ ነቲ Transaction ID ወይ Screenshot ርኢኻ ኣረጋግጽ።\n\n"
+            "➡️ ንምርግጋጽ: ኣብዚ ጠውቕ `/approve {user_id} {album_key}`\n"
+            "➡️ ንምንጻግ: ኣብዚ ጠውቕ `/reject {user_id}`"
         ),
-        'saho_unavailable': "እቲ ናይ ሳሆ (ኢሮብ) ቋንቋ ክፋል ኣብ ስራሕ ይርከብ። በጃኻ ንግዚኡ ካልእ ቋንቋ ምረጽ።",
-        'wait_for_verification': "የቐንየልና!  መረጋገጺ ተቐቢልና ኣለና። ሓደ ኣካያዲ ሕጂ ነቲ ዝሰደድካዮ ደረሰኝ ከረጋግጾ እዩ። ድሕሪ ቁሩብ እዋን ናይ መእተዊ መላግቦ ክንሰደልካ ኢና። በጃኻ ብትዕግስቲ ጽናሕ።",
-        'payment_notif_admin': "🔔 ሓድሽ ደረሰኝ ተላኢኹ!\n\nተጠቃሚ {user_mention} (ID: `{user_id}`) ደረሰኝ ከም ዝለኣኸ ኣፍሊጡ ኣሎ። በጃኻ ናብዚ ሰብ'ዚ ዝመጸካ መልእኽቲ ርኢኻ ነቲ ክፍሊት ኣረጋግጽ።\n\nምስ ኣረጋገጽካ:\n`/approve {user_id}`\n\nክፍሊቱ ጌጋ እንተኾይኑ:\n`/reject {user_id}`",
-        'approve_usage': "⚠️ ጌጋ ኣጠቓቕማ!\nከምዚ ተጠቐም: /approve <user_id>\nኣብነት: /approve 123456789",
-        'reject_usage': "⚠️ ጌጋ ኣጠቓቕማ!\nከምዚ ተጠቐም: /reject <user_id>\nኣብነት: /reject 123456789",
-        'approval_success_admin': "✅ ብዓወት ተፈጺሙ! ናይ መእተዊ መላግቦ ናብ ተጠቃሚ {user_id} ተላኢኹ ኣሎ።",
+        'approve_usage': "⚠️ **ጌጋ ኣጠቓቕማ!**\nከምዚ ተጠቐም: `/approve <user_id> <album_key>`\nኣብነት: `/approve 123456789 vol4`",
+        'reject_usage': "⚠️ **ጌጋ ኣጠቓቕማ!**\nከምዚ ተጠቐም: `/reject <user_id>`\nኣብነት: `/reject 123456789`",
+        'approval_success_admin': "✅ ብዓወት ተፈጺሙ! ናይ መእተዊ መላግቦ ን <b>{album_title}</b> ናብ ተጠቃሚ {user_id} ተላኢኹ ኣሎ።",
         'rejection_success_admin': "✅ ንተጠቃሚ {user_id} ክፍሊቱ ከም ዘይተረጋገጸ መልእኽቲ ተላኢኽዎ ኣሎ።",
         'approval_not_admin': "❌ ፍቓድ የብልካን! እዚ ትእዛዝ'ዚ ንኣካየድቲ ጥራይ እዩ።",
         'payment_success_user': (
-            "✅ <b>ክፍሊትኩም ብዓወት ተረጋጊጹ እዩ!</b> ✅\n\n"
-            "ንዝገበርኩምልና ደገፍ ኣዚና ነምስግን። እዞም መዝሙራት በረኸት ከምጽኡልኩም ንምነ።\n\n"
-            "ነዚ **ሓደ ግዜ ጥራይ** ዝሰርሕ መላግቦ ተጠቒምኩም ናብቲ ውሑስ ቻነል ክትኣትዉ ትኽእሉ ኢኹም፦\n"
-            "<b>{invite_link}</b>"
+            "🎉 **እንኳዕ ደስ በለካ! ክፍሊትካ ብዓወት ተረጋጊጹ እዩ!** 🎉\n\n"
+            "ን <b>{album_title}</b> ስለ ዝዓደግካ ኣዚና ነምስግን። እዞም መዝሙራት በረኸት ከምጽኡልካ ንምነ።\n\n"
+            "ነዚ **ሓደ ግዜ ጥራይ** ዝሰርሕ መላግቦ ጠዊቕካ ናብቲ ውሑስ ቻነል ክትጽንበር ትኽእል ኢኻ፦\n"
+            "🔗 <b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ ይቕሬታ፡ ነቲ ዝሰደድካዮ ደረሰኝ ከነረጋግጽ ኣይከኣልናን። ሕቶኻ ተነጺጉ ኣሎ። እዚ ብጌጋ ዝተፈጸመ ይመስለካ እንተኾይኑ፡ በጃኻ ምስ ኣካያዲና ብቐጥታ ኣብ @Dmtsibereket ተራኸብ።",
+        'payment_rejected_user': "❌ ይቕሬታ፡ ነቲ ዝሰደድካዮ ናይ ክፍያ ሓበሬታ ከነረጋግጽ ኣይከኣልናን። ሕቶኻ ተነጺጉ ኣሎ። እዚ ብጌጋ ዝተፈጸመ ይመስለካ እንተኾይኑ፡ በጃኻ ምስ ኣካያዲና ብቐጥታ ኣብ [@YOUR_ADMIN_USERNAME_HERE] ተራኸብ።",
+        'feedback_prompt': "እቶም መዝሙራት የበርኹኹም ከም ዘለዉ ተስፋ ንገብር! ድሕሪ ገለ መዓልታት፡ ሓሳብ ርኢቶኹም ንምሕታት መልእኽቲ ክንሰደልኩም ኢና።",
+        'feedback_request': "ሰላም {user_name}! ነቲ ናይ <b>{album_title}</b> ኣልበም ከም እትሰምዖ ዘለኻ ተስፋ ንገብር። ሓሳብካ ወይ ምስክርነትካ እንተተካፍለና፡ ኣዚና ምተሓጎስና። ቃልካ ዓቢ መተባብዒ እዩ!",
     },
+
+    # ====================================================================================
+    # Amharic Translations
+    # ====================================================================================
     'am': {
-        'welcome_language': "ሰላም <b>{user_name}</b>! እንኳን ደህና መጡ።\n\nእባክዎ ለመቀጠል ቋንቋ ይምረጡ:",
-        'ask_location': "የአማርኛ ቋንቋ መርጠዋል።\n\nእባክዎ አሁን ያሉበትን ቦታ ይምረጡ:",
-        'location_in_button': "🇪🇹 በኢትዮጵያ ውስጥ",
-        'location_out_button': "🌍 ከኢትዮጵያ ውጪ",
-        'welcome_main': (
-            "እንኳን ወደ <b>'የልደታ ማርያም መዘምራን ቁምስና መቀሌ'</b> አራተኛ አልበም ይፋዊ መሸጫ ቦት በደህና መጡ።"
+        'welcome_language': "ሰላም <b>{user_name}</b>! እንኳን ደህና መጡ።\n\nእባክዎ ለመቀጠל ቋንቋ ይምረጡ:",
+        'main_menu': (
+            "እንኳን ወደ <b>'የልደታ ማርያም መዘምራን ቁምስና መቀሌ'</b> ይፋዊ ዲጂታል የአልበም መሸጫ በደህና መጡ።\n\n"
+            "እባክዎ መግዛት የሚፈልጉትን አልበም ይምረጡ፦"
         ),
-        'buy_album_button': "🛒 አልበሙን ይግዙ",
-        'about_album_button': "ℹ️ ስለ አልበሙ",
-        'back_to_start_button': "⬅️ ወደ ቋንቋ ምርጫ ይመለሱ",
-        'back_to_main_menu_button': "⬅️ ወደ ዋናው ምናሌ ይመለሱ",
-        'slip_sent_button': "✅ የክፍያ ማረጋገጫውን ልኬያለሁ",
+        'album_vol_4': "ኢየሱስ (Vol. 4) - 300 ብር",
+        'album_vol_3': "አንተን አምና (Vol. 3) - 100 ብር",
+        'album_vol_2': "ተስፋ አለን (Vol. 2) - 100 ብር",
+        'album_vol_1': "ልዘምርልህ (Vol. 1) - 100 ብር",
+        'how_to_buy_button': "📖 እንዴት መግዛት ይቻላል",
+        'back_to_main_menu_button': "⬅️ ወደ አልበሞች ዝርዝር ይመለሱ",
+        'home_button': "🏠 ወደ ዋናው ምናሌ",
+        'help_button': "❔ እርዳታ",
+        'ask_payment_method': "እባክዎ የክፍያ ማረጋገጫ ዘዴዎን ይምረጡ።\n**Transaction ID**ውን እንደ ጽሑፍ ወይም **የክፍያ ደረሰኙን (Screenshot)** እንደ ፎቶ ይላኩ።",
         'payment_instructions': (
-            "በጣም ጥሩ! የአልበሙ ዋጋ <b>{album_price} ብር</b> ነው።\n\n"
+            "በጣም ጥሩ ምርጫ! እርስዎ <b>{album_title}</b>ን በ<b>{album_price} ብር</b> እየገዙ ነው።\n\n"
             "ክፍያ ለመፈጸም ከሚከተሉት መንገዶች አንዱን ይጠቀሙ፦\n\n"
             "<b><u>1. የኢትዮጵያ ንግድ ባንክ (CBE):</u></b>\n"
-            "<b>ስም:</b> [ ማሕበር መዘምራን ልደታ ማርያም ቁ.መቐለ]\n"
-            "<b>የሂሳብ ቁጥር:</b> [1000639550323]\n\n"
+            "<b>ስም:</b> [YOUR_CBE_ACCOUNT_NAME_HERE]\n"
+            "<b>የሂሳብ ቁጥር:</b> [YOUR_CBE_ACCOUNT_NUMBER_HERE]\n\n"
             "<b><u>2. አቢሲንያ ባንክ (BOA):</u></b>\n"
-            "<b>ስም:</b> [ማሕበር መዘምራን ልደታ ማርያም]\n"
-            "<b>የሂሳብ ቁጥር:</b> [196302506]\n\n"
-            "⚠️ <b>በጣም አስፈላጊ:</b> ክፍያ ከፈጸሙ በኋላ፣ የክፍያ ማረጋገጫውን (screenshot) ለአስተዳዳሪያችን @Dmtsibereket መላክ **ግዴታ** ነው።\n\n"
-            "ደረሰኙን ከላኩ በኋላ፣ ከታች ያለውን ቁልፍ ይጫኑ።"
+            "<b>ስም:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
+            "<b>የሂሳብ ቁጥር:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
+            "⚠️ <b>በጣም አስፈላጊ:</b>\n"
+            "ክፍያ ከፈጸሙ በኋላ፣ ወደዚህ በመመለስ የ**Transaction ID** (ለምሳሌ፡ `ET123...`) ወይም የክፍያ **Screenshot** መላክ አለብዎት።"
         ),
-        'about_album_text': (
-            "<b><u>ስለ አራተኛው አልበም</u></b>\n\n"
-            "ይህ በ'የልደታ ማርያም መዘምራን ቁምስና መቀሌ' የተዘጋጀ አራተኛ አልበም ሲሆን፣ "
-            "በርካታ አዳዲስና መንፈሳዊ መዝሙሮችን ይዟል። ግዢዎ ለአገልግሎታችን ትልቅ ድጋፍ ነው።\n\n"
-            "እናመሰግናለን! እግዚአብሔር ይባርክዎ።"
+        'location_out_unavailable': "ከኢትዮጵያ ውጪ ላሉ ደንበኞች የሚሆን አገልግሎት በአሁኑ ሰዓት በግንባታ ላይ ነው። ስለተፈጠረው መዘግየት ይቅርታ እንጠይቃለን።",
+        'help_text_main': "<b>መመሪያ:</b> ይህ ዋናው ገጽ ነው። የትኛውንም አልበም በመምረጥ የግዢ ሂደቱን መጀመር ይችላሉ። ዝርዝር መመሪያ ከፈለጉ 'እንዴት መግዛት ይቻላል' የሚለውን ቁልፍ ይጫኑ።",
+        'help_text_payment': "<b>መመሪያ:</b> በዚህ ገጽ ላይ، በተሰጠው የባንክ መረጃ ተጠቅመው ክፍያዎን ይፈጽሙ። ከዚያ በኋላ، Transaction ID (በጽሑፍ) ወይም ደረሰኙን (በፎቶ) ወደዚህ ቦት መላክ አለብዎት።",
+        'slip_received': "እናመሰግናለን! የክፍያ መረጃዎ ደርሶናል። አንድ አስተዳዳሪ አሁን ያረጋግጣል። ይህ የተወሰነ ጊዜ ሊወስድ ይችላል። ማረጋገጫ ሲያገኝ ወዲያውኑ መልእክት ይደርስዎታል። እባክዎ በትዕግስት ይጠብቁ።",
+        'payment_notif_admin': (
+            "🔔 **አዲስ የክፍያ መረጃ!** 🔔\n\n"
+            "<b>ተጠቃሚ:</b> {user_mention} (ID: `{user_id}`)\n"
+            "<b>አልበም:</b> {album_title}\n\n"
+            "ይህ ተጠቃሚ የክፍያ መረጃ ልኳል። እባክዎ ወደ ግል መልእክቱ በመሄድ Transaction ID ወይም Screenshot দেখে ክፍያውን ያረጋግጡ።\n\n"
+            "➡️ ለማጽደቅ: እዚህ ይጫኑ `/approve {user_id} {album_key}`\n"
+            "➡️ ላለመቀበል: እዚህ ይጫኑ `/reject {user_id}`"
         ),
-        'saho_unavailable': "ገና በስራ ላይ ስለ ሆነ ሌሎችን ኣማራጮች ይመልከቱ",
-        'wait_for_verification': "እናመሰግናለን! ማረጋገጫዎን ተቀብለናል። አስተዳዳሪ አሁን የክፍያ ወረቀትዎን ያረጋግጣል። የመግቢያ ሊንክ ያለው መልእክት በቅርቡ ይደርስዎታል። እባክዎ በትዕግስት ይጠብቁ።",
-        'payment_notif_admin': "🔔 አዲስ የክፍያ ማረጋገጫ ተልኳል!\n\nተጠቃሚ {user_mention} (ID: `{user_id}`) የክፍያ ወረቀት መላኩን አረጋግጧል። እባክዎ ከዚህ ተጠቃሚ የመጡትን መልዕክቶች ያረጋግጡ እና ክፍያውን ያረጋግጡ።\n\nአንዴ ካረጋገጡ በኋላ ይጠቀሙ:\n`/approve {user_id}`\n\nክፍያው ልክ ያልሆነ ከሆነ ይጠቀሙ:\n`/reject {user_id}`",
-        'approve_usage': "⚠️ የተሳሳተ አጠቃቀም!\nይህን ይጠቀሙ: /approve <user_id>\nምሳሌ: /approve 123456789",
-        'reject_usage': "⚠️ የተሳሳተ አጠቃቀም!\nይህን ይጠቀሙ: /reject <user_id>\nምሳሌ: /reject 123456789",
-        'approval_success_admin': "✅ ተሳክቷል! የመግቢያ ሊንክ ለተጠቃሚ {user_id} ተልኳል።",
-        'rejection_success_admin': "✅ ለተጠቃሚ {user_id} ክፍያው ውድቅ መደረጉ ተነግሮታል።",
-        'approval_not_admin': "❌ ፍቃድ የለዎትም! ይህ ትዕዛዝ ለአስተዳዳሪዎች ብቻ ነው።",
         'payment_success_user': (
-            "✅ <b>ክፍያዎ በተሳካ ሁኔታ ተረጋግጧል!</b> ✅\n\n"
-            "ስለ ድጋፍዎ በጣም እናመሰግናለን። እነዚህ መዝሙሮች ለህይወትዎ በረከትን እንዲያመጡ እንጸልያለን።\n\n"
-            "ይህን **የአንድ ጊዜ** መግቢያ ሊንክ በመጠቀም ወደ ግል ቻናሉ መቀላቀል ይችላሉ፦\n"
-            "<b>{invite_link}</b>"
+            "🎉 **እንኳን ደስ አለዎት! ክፍያዎ በተሳካ ሁኔታ ተረጋግጧል!** 🎉\n\n"
+            "<b>{album_title}</b>ን ስለገዙ በጣም እናመሰግናለን። ለአገልግሎታችን ላደረጉት ድጋፍ ከልብ እናመሰግናለን።\n\n"
+            "ይህን **የአንድ ጊዜ** መግቢያ ሊንክ በመጫን ወደ ግል ቻናሉ መቀላቀል ይችላሉ፦\n"
+            "🔗 <b>{invite_link}</b>"
         ),
-        'payment_rejected_user': "❌ ይቅርታ፣ ክፍያዎን ማረጋገጥ ላይ ችግር ነበር። ጥያቄዎ ውድቅ ተደርጓል። ይህ በስህተት እንደሆነ ካመኑ፣ እባክዎ አስተዳዳሪያችንን በቀጥታ በ @Dmtsibereket ያግኙ።",
+        'payment_rejected_user': "❌ ይቅርታ፣ የላኩትን የክፍያ መረጃ ማረጋገጥ አልቻልንም። ጥያቄዎ ውድቅ ተደርጓል። ይህ በስህተት እንደሆነ ካመኑ፣ እባክዎ አስተዳዳሪያችንን በቀጥታ በ [@YOUR_ADMIN_USERNAME_HERE] ያግኙ።",
+        'feedback_prompt': "ዝማሬዎቹ እየባረኩዎት እንደሆነ ተስፋ እናደርጋለን! ከጥቂት ቀናት በኋላ፣ ስለ አልበሙ ያለዎትን አስተያየት ለመጠየቅ መልእክት እንልክልዎታለን።",
+        'feedback_request': "ሰላም {user_name}! የ<b>{album_title}</b>ን አልበም እንደወደዱት ተስፋ እናደርጋለን። አስተያየትዎን ወይም ምስክርነትዎን ቢያካፍሉን በጣም እንደሰታለን። ቃልዎ ትልቅ ማበረታቻ ነው!",
     },
-    'saho': {
-        'welcome_language': "Bade Welcome, <b>{user_name}</b>!\n\nFadlan afki dooro:",
-        'ask_location': "Saho afki dortotte.\n\nFadlan, abey Rammah Anitto dooro:",
-        'location_in_button': "🇪🇹 Ethiopia Gudul",
-        'location_out_button': "🌍 Ethiopia Badaak",
-        'welcome_main': "Tani Qism Ab Sereh We-et Yerkeb. (This section is under construction).",
-        'buy_album_button': "🛒 Album Gid (Under Const.)",
-        'about_album_button': "ℹ️ Ta Album Bica (Under Const.)",
-        'back_to_start_button': "⬅️ Ifi Af Dorrole Dagca",
-        'back_to_main_menu_button': "⬅️ Ifi Gudfanah Dagca",
-        'slip_sent_button': "✅ Derese Aka Le Ake.",
-        'payment_instructions': "Tani qism ab sereh we-et yerkeb. Fadlan akak af dooro.",
-        'about_album_text': "Tani qism ab sereh we-et yerkeb.",
-        'saho_unavailable': "እዚ ክፋል ናይ ሳሆ ኣብ ስራሕ እዩ ዝርከብ በይዛኦም ንግዚኡ ካሊእ ቋንቋ ይጠቀሙ።",
-        'wait_for_verification': "Shukran! Tenna potvrijedženje tergabne. Admin hiyye tenna derese karagagse. Ba-adoh Gizek na kanal adagsele link kalakna. Fadlan bi tigisti sanaah.",
-        # Admin and other messages will use English as a fallback
-        'payment_success_user': (
-            "✅ <b>Kiflitotoh Bi Awot Teragagitse!</b> ✅\n\n"
-            "Dagaf-oh abissinnah, azinne namisgin.\n\n"
-            "Tani **ide gezeh** takaddam link kah dagoytiyok na channel kadato takale:-\n"
-            "<b>{invite_link}</b>"
+
+    # ====================================================================================
+    # Afaan Oromoo Translations
+    # ====================================================================================
+    'om': {
+        'welcome_language': "Baga nagaan dhuftan <b>{user_name}</b>!\n\nMaaloo itti fufuuf afaan filadhaa:",
+        'main_menu': (
+            "Gara bot gurgurtaa albamii arfaffaa\n"
+            "<b>'Garee Mezemran Lideta Mariam Qumsna Maqalee'</b>-tti nagaan dhuftan.\n\n"
+            "Maaloo albamii bitachuu barbaaddan filadhaa:"
         ),
-        'payment_rejected_user': "❌ Ikra! Tenna kiflitot derese karagagne akeennino. Fadlan na admin bi qeteta ab @Dmtsibereket terakeb.",
-    }
+        'album_vol_4': "Iyyasuus (Vol. 4) - 300 ETB",
+        'album_vol_3': "Si Amannee (Vol. 3) - 100 ETB",
+        'album_vol_2': "Abdii Qabna (Vol. 2) - 100 ETB",
+        'album_vol_1': "Sin Faarsina (Vol. 1) - 100 ETB",
+        'how_to_buy_button': "📖 Akkamitti Bittam",
+        'back_to_main_menu_button': "⬅️ Gara Tarree Albamootaatti Deebi'i",
+        'home_button': "🏠 Gara Fuula Jalqabaatti",
+        'help_button': "❔ Gargaarsa",
+        'ask_payment_method': "Maaloo tooftaa mirkaneessa kaffaltii keessanii filadhaa.\n**Lakkoofsa Raawwii** (Transaction ID) akka barruutti, ykn **Nagahee Kaffaltii (Screenshot)** akka suuraatti ergaa.",
+        'payment_instructions': (
+            "Filannoo gaarii! Albamii <b>{album_title}</b> gatii <b>{album_price} ETB</b>-tiin bitachaa jirtu.\n\n"
+            "Kaffaltii raawwachuuf tooftaalee armaan gadii keessaa tokko fayyadamaa:\n\n"
+            "<b><u>1. Baankii Daldalaa Itiyoophiyaa (CBE):</u></b>\n"
+            "<b>Maqaa:</b> [YOUR_CBE_ACCOUNT_NAME_HERE]\n"
+            "<b>Lak. Herreegaa:</b> [YOUR_CBE_ACCOUNT_NUMBER_HERE]\n\n"
+            "<b><u>2. Baankii Abisiiniyaa (BOA):</u></b>\n"
+            "<b>Maqaa:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
+            "<b>Lak. Herreegaa:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
+            "⚠️ <b>Hedduu Barbaachisaa:</b>\n"
+            "Kaffaltii erga raawwattanii booda, as deebi'uun **Lakkoofsa Raawwii** (fkn, `ET123...`) ykn **Screenshot** kaffaltii nuuf erguu qabdu."
+        ),
+        'location_out_unavailable': "Tajaajilli maamiltoota Itoophiyaan alaa jiraniif amma hojiirra oolaa hin jiru. Hir'ina mudateef dhiifama isin gaafanna.",
+        'slip_received': "Galatoomaa! Odeeffannoo kaffaltii keessan fudhanneerra. Bulchaan keenya amna ni mirkaneessa. Kun yeroo muraasa fudhachuu danda'a. Kaffaltiin keessan yeroo mirkanaa'u battalumatti ergaan isin qaqqaba. Maaloo obsaan eegaa.",
+        'payment_notif_admin': (
+            "🔔 **Odeeffannoo Kaffaltii Haaraa!** 🔔\n\n"
+            "<b>Fayyadamaa:</b> {user_mention} (ID: `{user_id}`)\n"
+            "<b>Albamii:</b> {album_title}\n\n"
+            "Fayyadamtootni kun odeeffannoo kaffaltii erganii jiru. Maaloo gara ergaa isaanii deemun Lakkoofsa Raawwii ykn Screenshot ilaaluun kaffaltii mirkaneessaa.\n\n"
+            "➡️ Mirkaneessuuf: as tuqi `/approve {user_id} {album_key}`\n"
+            "➡️ Diduuf: as tuqi `/reject {user_id}`"
+        ),
+        'payment_success_user': (
+            "🎉 **Baga gammaddan! Kaffaltiin keessan milkaa'inaan mirkanaa'eera!** 🎉\n\n"
+            "<b>{album_title}</b> waan bitattaniif hedduu isin galateeffanna. Faarfannoonni kun jireenya keessaniif eebba akka fidan ni hawwina.\n\n"
+            "Liinkii **yeroo tokkoof** qofa tajaajilu kanatti fayyadamuun chaanaalii dhuunfaa keenyatti makamuu dandeessu:\n"
+            "🔗 <b>{invite_link}</b>"
+        ),
+        'payment_rejected_user': "❌ Dhiifama, kaffaltii keessan mirkaneessuu hin dandeenye. Iyyanni keessan kufaa ta'eera. Kun dogoggoraan ta'eera jettanii yoo amantan, maaloo bulchaa keenya kallattiin karaa [@YOUR_ADMIN_USERNAME_HERE] qunnamaa.",
+        'feedback_prompt': "Faarfannoonni kun isin eebbisaa akka jiran abdii qabna! Guyyoota muraasa booda, waa'ee albamichaa yaada keessan gaafachuuf ergaa isiniif ergina.",
+        'feedback_request': "Akkam {user_name}! Albamii <b>{album_title}</b> jaallattan abdii qabna. Yaada ykn dhugaa ba'umsa keessan yoo nuuf hirtan baay'ee gammana. Jechi keessan onnachiisa guddaadha!",
+    },
+
+    # ====================================================================================
+    # Saho Translations (Placeholder - Uses Tigrinya)
+    # ====================================================================================
+    'saho': {
+        'welcome_language': "ሰላም <b>{user_name}</b>! እንኳዕ ብደሓን መጻእካ።\n\nበጃኻ ንኽትቅጽል ቋንቋ ምረጽ፦",
+        'main_menu': (
+            "እንኳዕ ብደሓን ናብ ወግዓዊ ዲጂታል መሸጢ ናይ ኣልበማት\n"
+            "<b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> በጻሕካ።\n\n"
+            "በጃኻ ክትዕድግ እትደሊ ኣልበም ምረጽ፦"
+        ),
+        'album_vol_4': "እየሱስ (Vol. 4) - 300 ብር",
+        'album_vol_3': "ንዓኻ ኣሚና (Vol. 3) - 100 ብር",
+        'album_vol_2': "ተስፋ ኣሎና (Vol. 2) - 100 ብር",
+        'album_vol_1': "ክዝምረልካ (Vol. 1) - 100 ብር",
+        'how_to_buy_button': "📖 ኣገባብ ኣተዓዳድጋ",
+        'back_to_main_menu_button': "⬅️ ናብ ዝርዝር ኣልበማት ተመለስ",
+        'home_button': "🏠 ናብ ቀንዲ ገጽ",
+        'help_button': "❔ ሓገዝ",
+        'ask_payment_method': "በጃኻ ናይ ክፍያ መረጋገጺ ኣገባብካ ምረጽ።\nነቲ **Transaction ID** ከም ጽሑፍ፡ ወይ ነቲ **ናይ ክፍያ ደረሰኝ (Screenshot)** ከም ስእሊ ስደድ።",
+        'payment_instructions': (
+            "ብሉጽ ምርጫ! ንስኻ <b>{album_title}</b> ብ<b>{album_price} ብር</b> ትዕድግ ኣለኻ።\n\n"
+            "ክፍሊት ንምፍጻም በዞም ዝስዕቡ ኣገባባት ተጠቐም፦\n\n"
+            "<b><u>1. ንግዲ ባንክ ኢትዮጵያ (CBE):</u></b>\n"
+            "<b>ስም:</b> [YOUR_CBE_ACCOUNT_NAME_HERE]\n"
+            "<b>ቁጽሪ ሕሳብ:</b> [YOUR_CBE_ACCOUNT_NUMBER_HERE]\n\n"
+            "<b><u>2. ባንኪ ኣቢሲንያ (BOA):</u></b>\n"
+            "<b>ስም:</b> [YOUR_BOA_ACCOUNT_NAME_HERE]\n"
+            "<b>ቁጽሪ ሕሳብ:</b> [YOUR_BOA_ACCOUNT_NUMBER_HERE]\n\n"
+            "⚠️ <b>ኣዝዩ ኣገዳሲ:</b>\n"
+            "ክፍሊትካ ምስ ፈጸምካ፡ ናብዚ ተመሊስካ ነቲ **Transaction ID** (ንኣብነት፡ `ET123...`) ወይ ነቲ **Screenshot** ክትሰደልና ኣለካ።"
+        ),
+        'location_out_unavailable': "ንደንበኛታትና ኣብ ወጻኢ ዚኸውን ኣገልግሎት ኣብዚ እዋን'ዚ ኣብ ስራሕ ይርከብ። ንዘጋጠመ ምድንጓይ ይቕሬታ ንሓትት።",
+        'help_text_main': "<b>መርሒ:</b> እዚ ቀንዲ ገጽ እዩ። ዝኾነ ኣልበም መሪጽካ ናይ ምዕዳግ መስርሕ ክትጅምር ትኽእል ኢኻ። ዝርዝር መምርሒ እንተደሊኻ፡ 'ኣገባብ ኣተዓዳድጋ' ዝብል ቁልፊ ጠውቕ።",
+        'help_text_payment': "<b>መርሒ:</b> ኣብዚ ገጽ'ዚ፡ በቶም ዝተዋህቡ ናይ ባንክ ሓበሬታታት ተጠቒምካ ክፍሊትካ ፈጽም። ድሕሪኡ፡ ነቲ Transaction ID (כמו ጽሑፍ) ወይ ነቲ ደረሰኝ (כמו ስእሊ) ናብዚ ቦት'ዚ ክትሰዶ ኣለካ።",
+        'slip_received': "የቐንየልና! ናይ ክፍያ ሓበሬታኻ ተቐቢልና ኣለና። ሓደ ኣካያዲ ሕጂ ከረጋግጾ እዩ። እዚ ቁሩብ ግዜ ክወስድ ይኽእል እዩ። ምስ ተረጋገጸ ብኡንብኡ መልእኽቲ ክንሰደልካ ኢና። በጃኻ ብትዕግስቲ ጽናሕ።",
+        'payment_notif_admin': (
+            "🔔 **ሓድሽ ናይ ክፍያ ሓበሬታ!** 🔔\n\n"
+            "<b>ተጠቃሚ:</b> {user_mention} (ID: `{user_id}`)\n"
+            "<b>ኣልበም:</b> {album_title}\n\n"
+            "እዚ ተጠቃሚ'ዚ ናይ ክፍያ ሓበሬታ ሰዲዱ ኣሎ። በጃኻ ናብ ውልቃዊ መልእኽቱ ኬድካ ነቲ Transaction ID ወይ Screenshot ርኢኻ ኣረጋግጽ።\n\n"
+            "➡️ ንምርግጋጽ: ኣብዚ ጠውቕ `/approve {user_id} {album_key}`\n"
+            "➡️ ንምንጻግ: ኣብዚ ጠውቕ `/reject {user_id}`"
+        ),
+        'payment_success_user': (
+            "🎉 **እንኳዕ ደስ በለካ! ክፍሊትካ ብዓወት ተረጋጊጹ እዩ!** 🎉\n\n"
+            "ን <b>{album_title}</b> ስለ ዝዓደግካ ኣዚና ነምስግን። እዞም መዝሙራት በረኸት ከምጽኡልካ ንምነ።\n\n"
+            "ነዚ **ሓደ ግዜ ጥራይ** ዝሰርሕ መላግቦ ጠዊቕካ ናብቲ ውሑስ ቻነል ክትጽንበር ትኽእል ኢኻ፦\n"
+            "🔗 <b>{invite_link}</b>"
+        ),
+        'payment_rejected_user': "❌ ይቕሬታ፡ ነቲ ዝሰደድካዮ ናይ ክፍያ ሓበሬታ ከነረጋግጽ ኣይከኣልናን። ሕቶኻ ተነጺጉ ኣሎ። እዚ ብጌጋ ዝተፈጸመ ይመስለካ እንተኾይኑ፡ በጃኻ ምስ ኣካያዲና ብቐጥታ ኣብ [@YOUR_ADMIN_USERNAME_HERE] ተራኸብ።",
+        'feedback_prompt': "እቶም መዝሙራት የበርኹኹም ከም ዘለዉ ተስፋ ንገብር! ድሕሪ ገለ መዓልታት፡ ሓሳብ ርኢቶኹም ንምሕታት መልእኽቲ ክንሰደልኩም ኢና።",
+        'feedback_request': "ሰላም {user_name}! ነቲ ናይ <b>{album_title}</b> ኣልበም ከም እትሰምዖ ዘለኻ ተስፋ ንገብር። ሓሳብካ ወይ ምስክርነትካ እንተተካፍለና፡ ኣዚና ምተሓጎስና። ቃልካ ዓቢ መተባብዒ እዩ!",
+    },
 }

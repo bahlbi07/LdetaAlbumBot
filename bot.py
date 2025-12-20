@@ -1,11 +1,14 @@
 import logging
 import os
 import threading
+import asyncio
+from datetime import timedelta
 from dotenv import load_dotenv
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, User
 from telegram.constants import ParseMode
+from telegram.error import BadRequest
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -16,221 +19,279 @@ from telegram.ext import (
     filters,
 )
 
+# Import our brand new translations file
 from translations import TRANSLATIONS
 
+# Load environment variables from .env file
 load_dotenv()
 
 # --- Configurations ---
+# These must be set in your Railway variables / .env file
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-PRIVATE_CHANNEL_ID = int(os.getenv("PRIVATE_CHANNEL_ID"))
-ALBUM_PRICE = os.getenv("ALBUM_PRICE", "299")
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Dmtsibereket").replace("@", "")
-PORT = int(os.environ.get('PORT', 8080))
+ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID") # Admin's unique Chat ID for receiving notifications
+ALBUM_PRICE_VOL4 = os.getenv("ALBUM_PRICE_VOL4", "300")
+ALBUM_PRICE_OTHERS = os.getenv("ALBUM_PRICE_OTHERS", "100")
 ALBUM_ART_FILE_ID = os.getenv("ALBUM_ART_FILE_ID")
+PORT = int(os.environ.get('PORT', 8080))
+# Channel IDs for each album
+CHANNEL_IDS = {
+    'vol4': int(os.getenv("CHANNEL_ID_VOL_4")),
+    'vol3': int(os.getenv("CHANNEL_ID_VOL_3")),
+    'vol2': int(os.getenv("CHANNEL_ID_VOL_2")),
+    'vol1': int(os.getenv("CHANNEL_ID_VOL_1")),
+}
 
+# --- Global variable to hold the application instance for background jobs ---
 bot_app = None
 
+# --- Logging Setup ---
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
-LANG_SELECT, LOCATION_SELECT, MAIN_MENU, AWAIT_SLIP_CONFIRM = range(4)
+# --- Conversation Handler States ---
+LANG_SELECT, MAIN_MENU, PAYMENT_INFO, AWAITING_PROOF = range(4)
 
-def get_text(lang_code: str, key: str, **kwargs) -> str:
+# --- Helper Functions ---
+def get_text(context: ContextTypes.DEFAULT_TYPE, key: str, **kwargs) -> str:
+    """Gets translated text using the language stored in user_data."""
+    lang_code = context.user_data.get('lang', 'ti') # Default to Tigrinya if not set
     lang_dict = TRANSLATIONS.get(lang_code, TRANSLATIONS['en'])
     text = lang_dict.get(key)
-    if text is None:
+    if text is None: # Fallback to English if key is missing in the current language
         text = TRANSLATIONS['en'].get(key, f"_{key}_")
     return text.format(**kwargs)
 
+# --- BOT HANDLERS START HERE ---
+
+# 1. Start of Conversation: Language Selection
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.effective_user
     context.user_data.clear()
 
+    # If the user clicked a "back" button, we handle it smoothly
     if update.callback_query:
         await update.callback_query.answer()
-        try:
-            await update.callback_query.message.delete()
+        # Clean up the chat by deleting the old message
+        try: await update.callback_query.message.delete()
         except Exception: pass
 
     keyboard = [
         [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="lang_ti"), InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="lang_am")],
         [InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"), InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ (ኢሮብ)", callback_data="lang_saho")],
+        [InlineKeyboardButton("🇪🇹 Afaan Oromoo", callback_data="lang_om")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
     
-    # We will use the Tigrinya welcome message by default as it's the main language
     welcome_text = TRANSLATIONS['ti']['welcome_language'].format(user_name=user.first_name)
     
-    target_message = update.message or (update.callback_query and update.callback_query.message)
-
+    # Send the album art only on a fresh /start, not from a back button
     if ALBUM_ART_FILE_ID and not update.callback_query:
-        try:
-            await target_message.reply_photo(photo=ALBUM_ART_FILE_ID, caption=welcome_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-        except Exception as e:
-            logging.error(f"Could not send photo: {e}")
-            await target_message.reply_text(text=welcome_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    else:
-        await target_message.reply_text(text=welcome_text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+        await update.message.reply_photo(
+            photo=ALBUM_ART_FILE_ID,
+            caption=welcome_text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode=ParseMode.HTML
+        )
+    else: # If no album art or coming from 'back', send text
+        await update.message.reply_text(text=welcome_text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.HTML)
         
     return LANG_SELECT
 
-async def select_language_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+# 2. After Language is Selected: Main Album Menu
+async def language_select_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
+    
     lang_code = query.data.split('_')[1]
     context.user_data['lang'] = lang_code
     
-    if lang_code == 'saho':
-        keyboard = [[InlineKeyboardButton(get_text('ti', 'back_to_start_button'), callback_data="back_to_start")]]
-        await query.edit_message_text(text=get_text(lang_code, 'saho_unavailable'), reply_markup=InlineKeyboardMarkup(keyboard))
-        return LANG_SELECT
+    if lang_code == 'saho': # Saho language is not ready yet
+        keyboard = [[InlineKeyboardButton(get_text(context, 'home_button'), callback_data="back_to_start")]]
+        await query.edit_message_text(text=get_text(context, 'saho_unavailable'), reply_markup=InlineKeyboardMarkup(keyboard))
+        return LANG_SELECT # Stay here until they choose another language
     
-    keyboard = [
-        [InlineKeyboardButton(get_text(lang_code, 'location_in_button'), callback_data="location_in")],
-        [InlineKeyboardButton(get_text(lang_code, 'location_out_button'), callback_data="location_out")],
-        [InlineKeyboardButton(get_text(lang_code, 'back_to_start_button'), callback_data="back_to_start")],
-    ]
-    await query.edit_message_text(text=get_text(lang_code, 'ask_location'), reply_markup=InlineKeyboardMarkup(keyboard))
-    return LOCATION_SELECT
+    # All other languages go to the main menu
+    return await main_menu_handler(update, context)
 
-async def select_location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
+async def main_menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
-    await query.answer()
-    location = query.data.split('_')[1]
-    context.user_data['location'] = location
-    lang_code = context.user_data.get('lang', 'en')
-    
+    # It might not be a query if we are coming from another state
+    if query:
+        await query.answer()
+
+    # Build the main menu keyboard
     keyboard = [
-        [InlineKeyboardButton(get_text(lang_code, 'buy_album_button'), callback_data="main_buy")],
-        [InlineKeyboardButton(get_text(lang_code, 'about_album_button'), callback_data="main_about")],
-        [InlineKeyboardButton(get_text(lang_code, 'back_to_start_button'), callback_data="back_to_start")]
+        [InlineKeyboardButton(get_text(context, 'album_vol_4'), callback_data="select_vol4")],
+        [InlineKeyboardButton(get_text(context, 'album_vol_3'), callback_data="select_vol3")],
+        [InlineKeyboardButton(get_text(context, 'album_vol_2'), callback_data="select_vol2")],
+        [InlineKeyboardButton(get_text(context, 'album_vol_1'), callback_data="select_vol1")],
+        [InlineKeyboardButton(get_text(context, 'how_to_buy_button'), callback_data="guide")],
+        [InlineKeyboardButton(get_text(context, 'home_button'), callback_data="back_to_start")],
+        [InlineKeyboardButton(get_text(context, 'help_button'), callback_data="help_main")]
     ]
-    await query.edit_message_text(text=get_text(lang_code, 'welcome_main'), reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.HTML)
+    
+    target_message = query.message if query else update.message
+    await target_message.edit_text(
+        text=get_text(context, 'main_menu'),
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode=ParseMode.HTML
+    )
     return MAIN_MENU
-
-async def main_menu_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    
+# 3. Album Selected: Show Payment Instructions
+async def album_select_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    lang_code = context.user_data.get('lang', 'en')
-    choice = query.data
 
-    if choice == "main_about":
-        keyboard = [[InlineKeyboardButton(get_text(lang_code, 'back_to_main_menu_button'), callback_data="back_to_location_select")]]
-        await query.edit_message_text(text=get_text(lang_code, 'about_album_text'), reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.HTML)
-        return MAIN_MENU
+    album_key = query.data.split('_')[1] # e.g., 'vol4'
+    context.user_data['album_key'] = album_key
+    
+    price = ALBUM_PRICE_VOL4 if album_key == 'vol4' else ALBUM_PRICE_OTHERS
+    album_title = get_text(context, f'album_{album_key}')
+    
+    context.user_data['album_title'] = album_title # Store for later use
+    
+    payment_text = get_text(context, 'payment_instructions', album_title=album_title, album_price=price)
 
-    elif choice == "main_buy":
-        if context.user_data.get('location') == 'out':
-            await query.edit_message_text(text=get_text(lang_code, 'saho_unavailable'))
-            await asyncio.sleep(4)
-            return await select_language_handler(update, context) # Go back to language select gracefully
+    keyboard = [
+        [InlineKeyboardButton(get_text(context, 'back_to_main_menu_button'), callback_data="back_to_main_menu")],
+        [InlineKeyboardButton(get_text(context, 'home_button'), callback_data="back_to_start")],
+        [InlineKeyboardButton(get_text(context, 'help_button'), callback_data="help_payment")]
+    ]
+    
+    await query.edit_message_text(text=payment_text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.HTML)
+    return AWAITING_PROOF
 
-        payment_text = get_text(lang_code, 'payment_instructions', album_price=ALBUM_PRICE, YOUR_ADMIN_USERNAME_HERE=ADMIN_USERNAME)
-        keyboard = [
-            [InlineKeyboardButton(get_text(lang_code, 'slip_sent_button'), callback_data="slip_is_sent")],
-            [InlineKeyboardButton(get_text(lang_code, 'back_to_main_menu_button'), callback_data="back_to_location_select")]
-        ]
-        await query.edit_message_text(text=payment_text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.HTML)
-        return AWAIT_SLIP_CONFIRM
-
-async def slip_confirmation_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    lang_code = context.user_data.get('lang', 'en')
+# 4. User sends Transaction ID (text) or Screenshot (photo)
+async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.effective_user
+    lang_code = context.user_data.get('lang', 'ti')
+    album_title = context.user_data.get('album_title', 'Unknown Album')
+    album_key = context.user_data.get('album_key', 'unknown')
 
-    await query.edit_message_text(text=get_text(lang_code, 'wait_for_verification'), parse_mode=ParseMode.HTML)
+    admin_notif_text = get_text(context, 'payment_notif_admin', user_mention=user.mention_html(), user_id=user.id, album_title=album_title, album_key=album_key)
     
     try:
-        admin_notif_text = get_text('en', 'payment_notif_admin', user_mention=user.mention_html(), user_id=user.id)
-        await context.bot.send_message(chat_id=f"@{ADMIN_USERNAME}", text=admin_notif_text, parse_mode=ParseMode.HTML)
-    except Exception as e:
-        logging.error(f"Could not notify admin @{ADMIN_USERNAME}: {e}")
-        # THIS IS THE CORRECTED PART - uses lang_code
-        error_notif_text = get_text(lang_code, 'payment_rejected_user', YOUR_ADMIN_USERNAME_HERE=ADMIN_USERNAME) # Using reject message for this error
-        await query.message.reply_text(error_notif_text, parse_mode=ParseMode.HTML)
+        if update.message.text: # If they sent a Transaction ID
+            await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"{admin_notif_text}\n\n<b>Transaction ID:</b>\n<code>{update.message.text}</code>", parse_mode=ParseMode.HTML)
+        elif update.message.photo: # If they sent a screenshot
+            await context.bot.send_message(chat_id=ADMIN_CHAT_ID, text=admin_notif_text, parse_mode=ParseMode.HTML)
+            await context.bot.forward_message(chat_id=ADMIN_CHAT_ID, from_chat_id=user.id, message_id=update.message.message_id)
         
+        # Confirm to the user that we are waiting for the admin
+        await update.message.reply_text(text=get_text(context, 'slip_received'), parse_mode=ParseMode.HTML)
+    
+    except Exception as e:
+        logging.error(f"Could not notify admin: {e}")
+        await update.message.reply_text(get_text(lang_code, 'payment_rejected_user'))
+
+    # End the conversation here and wait for the admin's action
     return ConversationHandler.END
 
+
+# --- ADMIN-ONLY COMMANDS (called outside the conversation) ---
 async def approve_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    admin_user = update.effective_user
-    if admin_user.username.lower() != ADMIN_USERNAME.lower():
-        return
-    if not context.args or len(context.args) != 1:
-        return await update.message.reply_text(get_text('en', 'approve_usage'))
+    if str(update.effective_chat.id) != str(ADMIN_CHAT_ID):
+        return await update.message.reply_text(get_text(context, 'approval_not_admin'))
+
+    if len(context.args) != 2:
+        return await update.message.reply_text(get_text(context, 'approve_usage'))
+        
     try:
         user_id = int(context.args[0])
-        await send_success_message_to_user(user_id)
-        await update.message.reply_text(get_text('en', 'approval_success_admin', user_id=user_id))
-    except (ValueError, IndexError):
-        await update.message.reply_text("Invalid User ID.")
+        album_key = context.args[1].lower() # e.g., 'vol4'
+        album_title = get_text({'user_data': {'lang': 'ti'}}, f'album_{album_key}') # Get title in Tigrinya for admin log
+
+        await send_success_message(user_id, album_key, album_title)
+        await update.message.reply_text(get_text(context, 'approval_success_admin', user_id=user_id, album_title=album_title))
+    except (ValueError, IndexError, KeyError):
+        await update.message.reply_text("Invalid User ID or Album Key format.")
 
 async def reject_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    admin_user = update.effective_user
-    if admin_user.username.lower() != ADMIN_USERNAME.lower():
-        return
-    if not context.args or len(context.args) != 1:
-        return await update.message.reply_text(get_text('en', 'reject_usage'))
+    if str(update.effective_chat.id) != str(ADMIN_CHAT_ID): return
+    if len(context.args) != 1: return await update.message.reply_text(get_text(context, 'reject_usage'))
     try:
         user_id = int(context.args[0])
-        rejection_text = get_text('ti', 'payment_rejected_user', YOUR_ADMIN_USERNAME_HERE=ADMIN_USERNAME)
-        await context.bot.send_message(chat_id=user_id, text=rejection_text, parse_mode=ParseMode.HTML)
-        await update.message.reply_text(get_text('en', 'rejection_success_admin', user_id=user_id))
-    except (ValueError, IndexError):
-        await update.message.reply_text("Invalid User ID.")
+        await context.bot.send_message(chat_id=user_id, text=get_text(context, 'payment_rejected_user'), parse_mode=ParseMode.HTML)
+        await update.message.reply_text(get_text(context, 'rejection_success_admin', user_id=user_id))
+    except (ValueError, IndexError): await update.message.reply_text("Invalid User ID.")
 
-async def send_success_message_to_user(user_id: int):
+# --- UTILITY Functions (run by commands) ---
+async def send_success_message(user_id: int, album_key: str, album_title: str):
+    target_channel_id = CHANNEL_IDS.get(album_key)
+    if not target_channel_id:
+        logging.error(f"No channel ID found for album key: {album_key}")
+        await bot_app.bot.send_message(chat_id=ADMIN_CHAT_ID, text=f"⚠️ ERROR: No Channel ID found for album `{album_key}` for user `{user_id}`.")
+        return
+
     try:
-        invite_link = await bot_app.bot.create_chat_invite_link(chat_id=PRIVATE_CHANNEL_ID, member_limit=1)
-        success_text = get_text('ti', 'payment_success_user', invite_link=invite_link.invite_link)
-        await bot_app.bot.send_message(chat_id=user_id, text=success_text, parse_mode=ParseMode.HTML)
-    except Exception as e:
-        logging.error(f"Failed to send invite to {user_id}: {e}")
-        await bot_app.bot.send_message(chat_id=f"@{ADMIN_USERNAME}", text=f"⚠️ Failed to send invite to user `{user_id}`. Please do it manually.", parse_mode="MarkdownV2")
+        await bot_app.bot.unban_chat_member(chat_id=target_channel_id, user_id=user_id, only_if_banned=True) # Unban first
+        await bot_app.bot.promote_chat_member(chat_id=target_channel_id, user_id=user_id, can_post_messages=False) # Smart way to add
+        await bot_app.bot.send_message(user_id, get_text({'user_data': {'lang': 'ti'}}, 'payment_success_user', album_title=album_title, invite_link=f"Channel for {album_title}")) # Success message
+        job_queue = bot_app.job_queue
+        job_queue.run_once(schedule_feedback, when=timedelta(days=3), data={'user_id': user_id, 'album_title': album_title}, name=f"feedback_{user_id}")
 
+    except BadRequest as e:
+        if "USER_IS_BOT" in str(e): # Bot trying to approve a bot
+            pass
+        elif "USER_NOT_MUTUAL_CONTACT" in str(e): # Privacy setting
+            invite_link = await bot_app.bot.create_chat_invite_link(chat_id=target_channel_id, member_limit=1)
+            # You might want to create a special message for this case
+            await bot_app.bot.send_message(user_id, get_text({'user_data': {'lang': 'ti'}}, 'payment_success_user_privacy', invite_link=invite_link.invite_link))
+        else:
+            logging.error(f"Failed to add {user_id} to channel {target_channel_id}: {e}")
+
+async def schedule_feedback(context: ContextTypes.DEFAULT_TYPE):
+    """Job to ask for feedback after 3 days."""
+    job_data = context.job.data
+    await context.bot.send_message(
+        chat_id=job_data['user_id'], 
+        text=get_text({'user_data': {'lang': 'ti'}}, 'feedback_request', album_title=job_data['album_title']),
+        parse_mode=ParseMode.HTML
+    )
+
+# --- Web Server (for health checks on Railway/Render) ---
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self): self.send_response(200); self.send_header("Content-type", "text/plain"); self.end_headers(); self.wfile.write(bytes("Bot is running!", "utf-8"))
-
 def run_web_server():
     server_address = ('', PORT); httpd = HTTPServer(server_address, HealthCheckHandler)
-    logging.info(f"Starting web server..."); httpd.serve_forever()
+    httpd.serve_forever()
 
 def main() -> None:
+    """Set up and run the bot."""
     global bot_app
-    if not TELEGRAM_TOKEN or not PRIVATE_CHANNEL_ID:
-        logging.critical("CRITICAL ERROR: Missing essential environment variables.")
+    
+    # Critical check for necessary variables
+    if not TELEGRAM_TOKEN or not ADMIN_CHAT_ID or not all(CHANNEL_IDS.values()):
+        logging.critical("CRITICAL ERROR: One or more essential environment variables are missing.")
         return
 
     web_server_thread = threading.Thread(target=run_web_server); web_server_thread.daemon = True; web_server_thread.start()
-    application = Application.builder().token(TELEGRAM_TOKEN).build(); bot_app = application
+    application = Application.builder().token(TELEGRAM_TOKEN).job_queue().build(); bot_app = application
     
+    # Conversation handler for the main user flow
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start_command)],
         states={
-            LANG_SELECT: [CallbackQueryHandler(select_language_handler, pattern="^lang_")],
-            LOCATION_SELECT: [
-                CallbackQueryHandler(select_location_handler, pattern="^location_"),
-                CallbackQueryHandler(start_command, pattern="^back_to_start$")
-            ],
+            LANG_SELECT: [CallbackQueryHandler(language_select_handler, pattern="^lang_")],
             MAIN_MENU: [
-                CallbackQueryHandler(main_menu_button_handler, pattern="^main_"),
-                CallbackQueryHandler(select_location_handler, pattern="^back_to_main_menu$"),
-                CallbackQueryHandler(start_command, pattern="^back_to_start$"),
+                CallbackQueryHandler(album_select_handler, pattern="^select_vol"),
+                CallbackQueryHandler(main_menu_handler, pattern="^back_to_main_menu$")
             ],
-            AWAIT_SLIP_CONFIRM: [
-                CallbackQueryHandler(slip_confirmation_handler, pattern="^slip_is_sent$"),
-                CallbackQueryHandler(select_location_handler, pattern="^back_to_main_menu$")
-            ]
+            AWAITING_PROOF: [MessageHandler(filters.TEXT | filters.PHOTO, proof_handler)],
         },
-        fallbacks=[CommandHandler("start", start_command)],
-        per_message=False,
+        fallbacks=[
+             CallbackQueryHandler(start_command, pattern="^back_to_start$"),
+             CommandHandler("start", start_command)
+        ],
     )
 
+    # Add all handlers to the application
     application.add_handler(conv_handler)
     application.add_handler(CommandHandler("approve", approve_command, filters=filters.User(username=ADMIN_USERNAME)))
     application.add_handler(CommandHandler("reject", reject_command, filters=filters.User(username=ADMIN_USERNAME)))
 
-    logging.info("Bot polling started..."); application.run_polling()
+    logging.info("Starting bot polling..."); application.run_polling()
 
 if __name__ == "__main__":
     main()
