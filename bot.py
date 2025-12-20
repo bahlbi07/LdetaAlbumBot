@@ -122,7 +122,46 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         reply_markup=InlineKeyboardMarkup(keyboard), parse_mode=ParseMode.HTML
     )
     return SELECT_ALBUM
+# THIS IS THE MISSING FUNCTION
+async def main_menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Reusable function to display the main album menu."""
+    query = update.callback_query
+    # This function might be called from different contexts, so be safe
+    if query:
+        await query.answer()
 
+    target_message = query.message if query else update.message
+    
+    # Build the main menu keyboard
+    keyboard = [
+        [InlineKeyboardButton(get_text(context, 'album_vol_4'), callback_data="select_vol4")],
+        [InlineKeyboardButton(get_text(context, 'album_vol_3'), callback_data="select_vol3")],
+        [InlineKeyboardButton(get_text(context, 'album_vol_2'), callback_data="select_vol2")],
+        [InlineKeyboardButton(get_text(context, 'album_vol_1'), callback_data="select_vol1")],
+        [InlineKeyboardButton(get_text(context, 'how_to_buy_button'), callback_data="show_guide")],
+        [InlineKeyboardButton(get_text(context, 'home_button'), callback_data="back_to_start")],
+        [InlineKeyboardButton(get_text(context, 'help_button'), callback_data="help_main_menu")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Decide whether to edit the current message or send a new one
+    if query:
+        try:
+            await query.edit_message_text(
+                text=f"{get_text(context, 'welcome_message', user_name=update.effective_user.first_name)}\n\n{get_text(context, 'main_menu_prompt')}",
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML
+            )
+        except BadRequest: # If message content is the same, just ignore
+            pass
+    else: # This shouldn't happen often, but as a fallback
+        await target_message.reply_text(
+            text=f"{get_text(context, 'welcome_message', user_name=update.effective_user.first_name)}\n\n{get_text(context, 'main_menu_prompt')}",
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.HTML
+        )
+
+    return SELECT_ALBUM
 # --- STAGE 3: Location Selection ---
 async def select_album_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
