@@ -23,7 +23,8 @@ from translations import TRANSLATIONS
 async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message.photo:
         photo = update.message.photo[-1] # Get the largest photo size
-        await update.message.reply_text(f"📸 **New File ID Found!**\n\n`{photo.file_id}`", parse_mode=ParseMode.MARKDOWN_V2)
+        # እዚኣ እታ ትኽክለኛ መስመር እያ (ክልተ ለውጥታት ኣለዉዋ)
+        await update.message.reply_text(f"📸 *New File ID Found!*\n\n`{photo.file_id}`", parse_mode=ParseMode.MARKDOWN_V2)
         logging.info(f"--- PHOTO DEBUG ---")
         logging.info(f"FILE_ID: {photo.file_id}")
         logging.info(f"--- END PHOTO DEBUG ---")
