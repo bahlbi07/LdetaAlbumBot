@@ -1,234 +1,189 @@
 import os
 from dotenv import load_dotenv
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import (
+    Update, InlineKeyboardButton, InlineKeyboardMarkup
+)
 from telegram.constants import ParseMode
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
     ConversationHandler, MessageHandler, ContextTypes, filters
 )
-from translations import TRANSLATIONS
 
 load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID"))
-POSTER = os.getenv("ALBUM_ART_FILE_ID")
+ALBUM_LINK = "https://your-download-link-here"
 
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT = range(5)
 
-# ───────────── HELPERS ─────────────
+TRANSLATIONS = {
+    "en": {
+        "welcome_text": "Welcome {user_name}",
+        "btn_continue": "Continue",
+        "main_menu_prompt": "Select Album",
+        "btn_guide": "How to Buy",
+        "btn_back": "⬅ Back",
+        "vol4": "Album Vol 4",
+        "vol3": "Album Vol 3",
+        "vol2": "Album Vol 2",
+        "vol1": "Album Vol 1",
+        "full_guide": "1. Select Album\n2. Pay\n3. Send Screenshot\n4. Get Link",
+        "ask_loc_text": "Where are you?",
+        "loc_eth": "Ethiopia",
+        "loc_intl": "Outside Ethiopia",
+        "payment_instructions": "Send payment screenshot for <b>{album}</b>",
+        "proof_received_msg": "Screenshot received. Waiting for approval.",
+        "approved_msg": "✅ Approved!\nHere is your link:\n{link}",
+        "rejected_msg": "❌ Payment rejected. Please try again."
+    }
+}
 
-def get_txt(lang, key, **kwargs):
-    text = TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key)
-    return text.format(**kwargs)
+def T(lang, key, **k):
+    return TRANSLATIONS[lang][key].format(**k)
 
-async def edit_any(query, text, keyboard):
-    msg = query.message
-    if msg.photo:
-        await query.edit_message_caption(
-            caption=text,
-            reply_markup=keyboard,
-            parse_mode=ParseMode.HTML
-        )
+async def edit_any(q, text, kb):
+    m = q.message
+    if m.photo:
+        await q.edit_message_caption(text, reply_markup=kb, parse_mode=ParseMode.HTML)
     else:
-        await query.edit_message_text(
-            text=text,
-            reply_markup=keyboard,
-            parse_mode=ParseMode.HTML
-        )
+        await q.edit_message_text(text, reply_markup=kb, parse_mode=ParseMode.HTML)
 
-# ───────────── START ─────────────
+# ───────── START ─────────
 
-async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data.clear()
-
-    kb = [
-        [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="l_ti"),
-         InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="l_am")],
-        [InlineKeyboardButton("🇬🇧 English", callback_data="l_en"),
-         InlineKeyboardButton("🇪🇹 Oromoo", callback_data="l_om")],
-        [InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ", callback_data="l_saho")]
-    ]
-
-    if update.callback_query:
-        await update.callback_query.answer()
-        await update.callback_query.message.delete()
-
-    if POSTER:
-        await context.bot.send_photo(
-            update.effective_chat.id,
-            POSTER,
-            caption="Please select your language",
-            reply_markup=InlineKeyboardMarkup(kb)
-        )
-    else:
-        await context.bot.send_message(
-            update.effective_chat.id,
-            "Please select your language",
-            reply_markup=InlineKeyboardMarkup(kb)
-        )
-
+async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    ctx.user_data.clear()
+    kb = [[InlineKeyboardButton("English", callback_data="l_en")]]
+    await update.message.reply_text("Select Language", reply_markup=InlineKeyboardMarkup(kb))
     return SELECT_LANG
 
-# ───────────── LANGUAGE ─────────────
+# ───────── LANGUAGE ─────────
 
-async def welcome_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def lang(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
-    lang = q.data.split("_")[1]
-    context.user_data["lang"] = lang
-
-    kb = [[InlineKeyboardButton(get_txt(lang, "btn_continue"), callback_data="go_menu")]]
-
-    await edit_any(
-        q,
-        get_txt(lang, "welcome_text", user_name=update.effective_user.first_name),
-        InlineKeyboardMarkup(kb)
-    )
-
+    ctx.user_data["lang"] = "en"
+    kb = [[InlineKeyboardButton(T("en","btn_continue"), callback_data="go_menu")]]
+    await edit_any(q, T("en","welcome_text", user_name=q.from_user.first_name), InlineKeyboardMarkup(kb))
     return GREETING
 
-# ───────────── MENU ─────────────
+# ───────── MENU ─────────
 
-async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
-    lang = context.user_data["lang"]
-
+    lang = ctx.user_data["lang"]
     kb = [
-        [InlineKeyboardButton(get_txt(lang, "vol4"), callback_data="buy_vol4")],
-        [InlineKeyboardButton(get_txt(lang, "vol3"), callback_data="buy_vol3")],
-        [InlineKeyboardButton(get_txt(lang, "vol2"), callback_data="buy_vol2")],
-        [InlineKeyboardButton(get_txt(lang, "vol1"), callback_data="buy_vol1")],
-        [InlineKeyboardButton(get_txt(lang, "btn_guide"), callback_data="guide")],
-        [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="restart")]
+        [InlineKeyboardButton(T(lang,"vol4"), callback_data="buy_vol4")],
+        [InlineKeyboardButton(T(lang,"btn_guide"), callback_data="guide")]
     ]
-
-    await edit_any(
-        q,
-        get_txt(lang, "main_menu_prompt"),
-        InlineKeyboardMarkup(kb)
-    )
-
+    await edit_any(q, T(lang,"main_menu_prompt"), InlineKeyboardMarkup(kb))
     return MENU
 
-# ───────────── HOW TO BUY (FIXED) ─────────────
+# ───────── GUIDE ─────────
 
-async def guide_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def guide(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
-    lang = context.user_data["lang"]
-
-    kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-
-    await edit_any(
-        q,
-        get_txt(lang, "full_guide"),
-        InlineKeyboardMarkup(kb)
-    )
-
-    # 🔥 CRITICAL: STAY IN MENU
+    lang = ctx.user_data["lang"]
+    kb = [[InlineKeyboardButton(T(lang,"btn_back"), callback_data="go_menu")]]
+    await edit_any(q, T(lang,"full_guide"), InlineKeyboardMarkup(kb))
     return MENU
 
-# ───────────── LOCATION ─────────────
+# ───────── LOCATION ─────────
 
-async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def location(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
-    lang = context.user_data["lang"]
-
-    if q.data.startswith("buy_"):
-        context.user_data["album"] = q.data.replace("buy_", "")
-
+    ctx.user_data["album"] = "VOL 4"
     kb = [
-        [InlineKeyboardButton(get_txt(lang, "loc_eth"), callback_data="loc_ok")],
-        [InlineKeyboardButton(get_txt(lang, "loc_intl"), callback_data="loc_no")],
-        [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]
+        [InlineKeyboardButton("Ethiopia", callback_data="loc_ok")],
+        [InlineKeyboardButton("⬅ Back", callback_data="go_menu")]
     ]
-
-    await edit_any(
-        q,
-        get_txt(lang, "ask_loc_text"),
-        InlineKeyboardMarkup(kb)
-    )
-
+    await edit_any(q, "Confirm location", InlineKeyboardMarkup(kb))
     return LOCATION
 
-# ───────────── PAYMENT ─────────────
+# ───────── PAYMENT ─────────
 
-async def payment_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def payment(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    kb = [[InlineKeyboardButton("⬅ Back", callback_data="go_menu")]]
+    await edit_any(q, "Send screenshot", InlineKeyboardMarkup(kb))
+    return PAYMENT
+
+# ───────── SCREENSHOT HANDLER (FIXED) ─────────
+
+async def screenshot(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    lang = ctx.user_data["lang"]
+    user = update.effective_user
+
+    file_id = update.message.photo[-1].file_id
+
+    kb = [
+        [
+            InlineKeyboardButton("✅ Approve", callback_data=f"approve_{user.id}"),
+            InlineKeyboardButton("❌ Reject", callback_data=f"reject_{user.id}")
+        ]
+    ]
+
+    await ctx.bot.send_photo(
+        ADMIN_ID,
+        file_id,
+        caption=f"Payment from @{user.username or user.first_name}\nID: {user.id}",
+        reply_markup=InlineKeyboardMarkup(kb)
+    )
+
+    await update.message.reply_text(T(lang,"proof_received_msg"))
+    return PAYMENT
+
+# ───────── ADMIN ACTION ─────────
+
+async def admin_action(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
 
-    lang = context.user_data["lang"]
+    action, user_id = q.data.split("_")
+    user_id = int(user_id)
 
-    if q.data == "loc_no":
-        kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-        await edit_any(q, get_txt(lang, "loc_out_unavailable"), InlineKeyboardMarkup(kb))
-        return LOCATION
+    if action == "approve":
+        await ctx.bot.send_message(
+            user_id,
+            T("en","approved_msg", link=ALBUM_LINK),
+            parse_mode=ParseMode.HTML
+        )
+        await q.edit_message_caption("✅ Approved")
+    else:
+        await ctx.bot.send_message(user_id, T("en","rejected_msg"))
+        await q.edit_message_caption("❌ Rejected")
 
-    album = context.user_data["album"]
-    price = "300" if album == "vol4" else "100"
-
-    kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-
-    await edit_any(
-        q,
-        get_txt(lang, "payment_instructions",
-                album_title=album.upper(), price=price),
-        InlineKeyboardMarkup(kb)
-    )
-
-    return PAYMENT
-
-# ───────────── PROOF ─────────────
-
-async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    lang = context.user_data["lang"]
-
-    await update.message.reply_text(
-        get_txt(lang, "proof_received_msg"),
-        parse_mode=ParseMode.HTML
-    )
-
-    return ConversationHandler.END
-
-# ───────────── MAIN ─────────────
+# ───────── MAIN ─────────
 
 def main():
     app = Application.builder().token(TOKEN).build()
 
     conv = ConversationHandler(
-        entry_points=[
-            CommandHandler("start", start_cmd),
-            CallbackQueryHandler(start_cmd, pattern="restart")
-        ],
+        entry_points=[CommandHandler("start", start)],
         states={
-            SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
-            GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
+            SELECT_LANG: [CallbackQueryHandler(lang)],
+            GREETING: [CallbackQueryHandler(menu, "^go_menu$")],
             MENU: [
-                CallbackQueryHandler(guide_handler, "^guide$"),
-                CallbackQueryHandler(location_handler, "^buy_"),
-                CallbackQueryHandler(menu_handler, "^go_menu$"),
-                CallbackQueryHandler(start_cmd, "^restart$")
+                CallbackQueryHandler(guide, "^guide$"),
+                CallbackQueryHandler(location, "^buy_"),
+                CallbackQueryHandler(menu, "^go_menu$")
             ],
-            LOCATION: [
-                CallbackQueryHandler(payment_handler, "^loc_"),
-                CallbackQueryHandler(menu_handler, "^go_menu$")
-            ],
+            LOCATION: [CallbackQueryHandler(payment, "^loc_")],
             PAYMENT: [
-                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, proof_handler),
-                CallbackQueryHandler(menu_handler, "^go_menu$")
+                MessageHandler(filters.PHOTO, screenshot),
+                CallbackQueryHandler(menu, "^go_menu$")
             ]
         },
-        fallbacks=[CommandHandler("start", start_cmd)]
+        fallbacks=[CommandHandler("start", start)]
     )
 
     app.add_handler(conv)
+    app.add_handler(CallbackQueryHandler(admin_action, "^(approve|reject)_"))
+
     app.run_polling()
 
 if __name__ == "__main__":
