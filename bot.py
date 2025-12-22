@@ -8,12 +8,12 @@ from telegram.ext import (
 )
 from translations import TRANSLATIONS
 
-# --- Config & Environment ---
 load_dotenv()
+
+# --- Config ---
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_ID = os.getenv("ADMIN_CHAT_ID")
-POSTER_MAIN = os.getenv("ALBUM_ART_FILE_ID")
-
+POSTER = os.getenv("ALBUM_ART_FILE_ID")
 CHANNELS = {
     'vol4': os.getenv("CHANNEL_ID_VOL_4"),
     'vol3': os.getenv("CHANNEL_ID_VOL_3"),
@@ -21,175 +21,203 @@ CHANNELS = {
     'vol1': os.getenv("CHANNEL_ID_VOL_1"),
 }
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
+
 # --- States ---
-SELECT_LANG, MAIN_MENU, ALBUM_INFO, PAY_PROCESS, PROOF_SECTION = range(5)
+LANG_STAGE, WELCOME_STAGE, MENU_STAGE, LOCATION_STAGE, PROOF_STAGE = range(5)
 
-# --- Robust Translation Helper ---
-def get_txt(lang, key, **kwargs):
-    lang_dict = TRANSLATIONS.get(lang, TRANSLATIONS['ti'])
-    text = lang_dict.get(key, TRANSLATIONS['ti'].get(key, f"_{key}_"))
-    try:
-        if "{user_name}" in text and "user_name" not in kwargs:
-            kwargs["user_name"] = "ክቡር ዓሚል"
-        return text.format(**kwargs)
-    except KeyError:
-        return text
+def get_text(lang, key, **kwargs):
+    text = TRANSLATIONS.get(lang, TRANSLATIONS['ti']).get(key, f"_{key}_")
+    if "{user_name}" in text and "user_name" not in kwargs:
+        kwargs["user_name"] = "ክቡር ዓሚል"
+    return text.format(**kwargs)
 
-# --- Bot Handlers ---
+# --- Handlers ---
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ቋንቋ ምረጽ - Poster shown only here"""
+    """Requirement 1: Poster + Language Selection Only"""
     context.user_data.clear()
     kb = [
         [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="l_ti"), InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="l_am")],
-        [InlineKeyboardButton("🇬🇧 English", callback_data="l_en"), InlineKeyboardButton("🇪🇹 Oromoo", callback_data="l_om")],
-        [InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ", callback_data="l_saho")]
+        [InlineKeyboardButton("🇬🇧 English", callback_data="l_en"), InlineKeyboardButton("🇪🇹 Afaan Oromoo", callback_data="l_om")],
+        [InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ (ኢሮብ)", callback_data="l_saho")]
     ]
-    caption = "<b>🙏 ሰላም / Welcome / ሰላም</b>\n\nPlease select your language.\nበጃኹም ቋንቋ ምረጹ።"
-    
     if update.callback_query:
         await update.callback_query.answer()
         try: await update.callback_query.message.delete()
         except: pass
 
-    if POSTER_MAIN:
-        await context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=POSTER_MAIN, 
-            caption=caption, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
-        )
+    caption = "Please choose your language / በጃኹም ቋንቋ ምረጹ / እባክዎ ቋንቋ ይምረጡ"
+    if POSTER:
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=POSTER, caption=caption, reply_markup=InlineKeyboardMarkup(kb))
     else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=caption, 
-            reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
-        )
-    return SELECT_LANG
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=caption, reply_markup=InlineKeyboardMarkup(kb))
+    return LANG_STAGE
 
-async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Main Menu screen"""
+async def welcome_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Requirement 2: After Lang -> Welcome Msg + Poster"""
     query = update.callback_query; await query.answer()
-    lang = query.data.split('_')[1] if 'l_' in query.data else context.user_data.get('lang', 'ti')
+    lang = query.data.split('_')[1]
     context.user_data['lang'] = lang
-    u_name = update.effective_user.first_name if update.effective_user else "ዓሚል"
+    u_name = update.effective_user.first_name
 
+    kb = [[InlineKeyboardButton(get_text(lang, 'btn_continue'), callback_data="to_menu")]]
+    text = get_text(lang, 'welcome_msg', user_name=u_name)
+    
+    await query.message.delete()
+    if POSTER:
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=POSTER, caption=text, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return WELCOME_STAGE
+
+async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Requirement 3: Detailed Menu"""
+    query = update.callback_query; await query.answer()
+    lang = context.user_data['lang']
+    
     kb = [
-        [InlineKeyboardButton(get_txt(lang, 'vol4'), callback_data="buy_vol4")],
-        [InlineKeyboardButton(get_txt(lang, 'vol3'), callback_data="buy_vol3")],
-        [InlineKeyboardButton(get_txt(lang, 'vol2'), callback_data="buy_vol2")],
-        [InlineKeyboardButton(get_txt(lang, 'vol1'), callback_data="buy_vol1")],
-        [InlineKeyboardButton(get_txt(lang, 'btn_guide'), callback_data="view_guide")],
-        [InlineKeyboardButton("🌐 Change Language", callback_data="back_to_start")]
+        [InlineKeyboardButton(get_text(lang, 'vol4_btn'), callback_data="buy_vol4")],
+        [InlineKeyboardButton(get_text(lang, 'vol3_btn'), callback_data="buy_vol3")],
+        [InlineKeyboardButton(get_text(lang, 'vol2_btn'), callback_data="buy_vol2")],
+        [InlineKeyboardButton(get_text(lang, 'vol1_btn'), callback_data="buy_vol1")],
+        [InlineKeyboardButton(get_text(lang, 'btn_guide'), callback_data="view_guide")],
+        [InlineKeyboardButton(get_text(lang, 'btn_help'), callback_data="help_main")],
+        [InlineKeyboardButton(get_text(lang, 'btn_back_lang'), callback_data="back_to_start")]
     ]
     
-    msg = get_txt(lang, 'welcome_text', user_name=u_name)
-    try: await query.message.delete()
-    except: pass
+    msg = get_text(lang, 'menu_prompt')
+    # Keep poster in menu for beauty (as per req 2)
+    if query.message.photo:
+        await query.edit_message_caption(caption=msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    else:
+        await query.edit_message_text(text=msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return MENU_STAGE
 
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=msg, 
-        reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML
-    )
-    return MAIN_MENU
-
-async def album_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Album detail & Location choice"""
+async def select_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Requirement 4: Location Options + Detailed Text"""
     query = update.callback_query; await query.answer()
     lang = context.user_data['lang']
     if "buy_" in query.data:
         context.user_data['album'] = query.data.split('_')[1]
-
+    
     kb = [
-        [InlineKeyboardButton(get_txt(lang, 'loc_eth'), callback_data="loc_ok")],
-        [InlineKeyboardButton(get_txt(lang, 'loc_intl'), callback_data="loc_no")],
-        [InlineKeyboardButton(get_txt(lang, 'btn_back'), callback_data="back_to_menu")]
+        [InlineKeyboardButton(get_text(lang, 'loc_in'), callback_data="loc_et")],
+        [InlineKeyboardButton(get_text(lang, 'loc_out'), callback_data="loc_os")],
+        [InlineKeyboardButton(get_text(lang, 'btn_back_menu'), callback_data="to_menu")],
+        [InlineKeyboardButton(get_text(lang, 'btn_back_lang'), callback_data="back_to_start")]
     ]
-    await query.edit_message_text(text=get_txt(lang, 'ask_loc_text'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return ALBUM_INFO
+    text = get_text(lang, 'ask_loc_text')
+    await query.edit_message_caption(caption=text, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return LOCATION_STAGE
 
-async def payment_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Payment Instructions"""
+async def payment_page(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Requirement 5: Bank Info + 🙋‍♂️ Hello Professional Text"""
     query = update.callback_query; await query.answer()
     lang = context.user_data['lang']
-    album = context.user_data.get('album', 'vol4')
-    
-    if query.data == "loc_no":
-        kb = [[InlineKeyboardButton(get_txt(lang, 'btn_back'), callback_data="back_to_album")]]
-        return await query.edit_message_text(text=get_txt(lang, 'loc_out_unavailable'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    album = context.user_data['album']
+
+    if query.data == "loc_os":
+        kb = [[InlineKeyboardButton(get_text(lang, 'btn_back_menu'), callback_data="to_menu")], [InlineKeyboardButton(get_text(lang, 'btn_back_lang'), callback_data="back_to_start")]]
+        await query.edit_message_caption(caption=get_text(lang, 'loc_out_unavailable'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+        return LOCATION_STAGE
 
     price = "300" if album == "vol4" else "100"
-    kb = [[InlineKeyboardButton(get_txt(lang, 'btn_back'), callback_data="back_to_album")]]
-    msg = get_txt(lang, 'payment_instructions', album_title=album.upper(), price=price)
-    await query.edit_message_text(text=msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return PROOF_SECTION
+    kb = [
+        [InlineKeyboardButton(get_text(lang, 'btn_help'), callback_data="help_pay")],
+        [InlineKeyboardButton(get_text(lang, 'btn_back_menu'), callback_data="to_menu")]
+    ]
+    msg = get_text(lang, 'payment_instructions', album_title=album.upper(), price=price)
+    await query.edit_message_caption(caption=msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return PROOF_STAGE
 
-async def guide_view(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Guide view"""
+async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query; await query.answer()
     lang = context.user_data['lang']
-    kb = [[InlineKeyboardButton(get_txt(lang, 'btn_back'), callback_data="back_to_menu")]]
-    await query.edit_message_text(text=get_txt(lang, 'full_guide'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return MAIN_MENU
+    help_type = query.data.split('_')[1] # main or pay
+    kb = [[InlineKeyboardButton(get_text(lang, 'btn_back_menu'), callback_data="to_menu")]]
+    await query.edit_message_caption(caption=get_text(lang, f'help_text_{help_type}'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return MENU_STAGE
 
-async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Receive proof and alert admin"""
+async def guide_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query; await query.answer()
     lang = context.user_data['lang']
+    kb = [[InlineKeyboardButton(get_text(lang, 'btn_back_menu'), callback_data="to_menu")], [InlineKeyboardButton(get_text(lang, 'btn_back_lang'), callback_data="back_to_start")]]
+    await query.edit_message_caption(caption=get_text(lang, 'full_guide'), reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return MENU_STAGE
+
+async def receive_proof(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Requirement 5 & 6: Proof Handling & Admin Alert"""
+    lang = context.user_data.get('lang', 'ti')
     user = update.effective_user
     album = context.user_data.get('album', 'N/A')
     
-    await update.message.reply_text(get_txt(lang, 'proof_received_msg'), parse_mode=ParseMode.HTML)
+    await update.message.reply_text(get_text(lang, 'proof_received_msg'), parse_mode=ParseMode.HTML)
     
     admin_kb = [
         [InlineKeyboardButton("✅ Approve", callback_data=f"adm_ok_{user.id}_{album}")],
         [InlineKeyboardButton("❌ Reject", callback_data=f"adm_no_{user.id}")]
     ]
-    alert = f"💎 <b>New Purchase!</b>\n👤 User: {user.mention_html()}\n🆔 ID: <code>{user.id}</code>\n💿 Album: <b>{album.upper()}</b>"
-    
+    alert = f"🔔 <b>New Purchase!</b>\nUser: {user.mention_html()}\nID: <code>{user.id}</code>\nAlbum: {album}"
     await context.bot.send_message(ADMIN_ID, alert, parse_mode=ParseMode.HTML)
     if update.message.photo: await update.message.forward(ADMIN_ID)
-    elif update.message.text: await context.bot.send_message(ADMIN_ID, f"💬 Message: {update.message.text}")
-    await context.bot.send_message(ADMIN_ID, "👇 Admin Action:", reply_markup=InlineKeyboardMarkup(admin_kb))
+    elif update.message.text: await context.bot.send_message(ADMIN_ID, f"💬 Text: {update.message.text}")
+    await context.bot.send_message(ADMIN_ID, "Action:", reply_markup=InlineKeyboardMarkup(admin_kb))
     return ConversationHandler.END
 
-async def admin_action_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def admin_action(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Requirement 6 & 11: Auto-add / Success Msg / Privacy Link"""
     query = update.callback_query; await query.answer()
-    data = query.data.split('_') # adm, ok/no, uid, album
-    action, target_uid = data[1], int(data[2])
+    _, action, uid, *album_info = query.data.split('_')
+    uid = int(uid)
     
     if action == "ok":
-        album_key = data[3]
+        album = album_info[0]
         try:
-            invite = await context.bot.create_chat_invite_link(chat_id=CHANNELS[album_key], member_limit=1)
-            await context.bot.send_message(target_uid, get_txt('ti', 'success_user_msg', album_title=album_key.upper()), parse_mode=ParseMode.HTML)
-            await context.bot.send_message(target_uid, f"🎁 <b>Access Link:</b> {invite.invite_link}\n\n{get_txt('ti', 'feedback_link')}", parse_mode=ParseMode.HTML)
-            await query.edit_message_text(f"✅ User {target_uid} Approved for {album_key}")
-        except Exception as e: await query.edit_message_text(f"❌ Error: {str(e)}")
+            # Auto-add Logic (Bot must be admin)
+            invite = await context.bot.create_chat_invite_link(CHANNELS[album], member_limit=1)
+            # Success Message
+            await context.bot.send_message(uid, get_text('ti', 'success_final'), parse_mode=ParseMode.HTML)
+            # Link/Privacy Message
+            msg = get_text('ti', 'privacy_link_msg', user_name="ዓሚል", album_title=album.upper(), invite_link=invite.invite_link)
+            await context.bot.send_message(uid, msg, parse_mode=ParseMode.HTML)
+            # Requirement 9: Feedback
+            await context.bot.send_message(uid, get_text('ti', 'feedback_msg'), parse_mode=ParseMode.HTML)
+            await query.edit_message_text(f"✅ Approved {uid}")
+        except Exception as e:
+            await query.edit_message_text(f"❌ Error: {str(e)}")
     else:
-        await context.bot.send_message(target_uid, "❌ Payment not verified. / ክፍሊትኩም ኣይተረጋገጸን።", parse_mode=ParseMode.HTML)
-        await query.edit_message_text(f"❌ Rejected User {target_uid}")
+        await context.bot.send_message(uid, "❌ Payment Rejected. Contact @Dmtsibereket.")
+        await query.edit_message_text(f"❌ Rejected {uid}")
 
 def main():
     app = Application.builder().token(TOKEN).build()
     conv = ConversationHandler(
         entry_points=[CommandHandler("start", start), CallbackQueryHandler(start, pattern="back_to_start")],
         states={
-            SELECT_LANG: [CallbackQueryHandler(menu_handler, pattern="^l_")],
-            MAIN_MENU: [
-                CallbackQueryHandler(album_select, pattern="^buy_"),
-                CallbackQueryHandler(guide_view, pattern="view_guide"),
+            LANG_STAGE: [CallbackQueryHandler(welcome_screen, pattern="^l_")],
+            WELCOME_STAGE: [CallbackQueryHandler(main_menu, pattern="to_menu")],
+            MENU_STAGE: [
+                CallbackQueryHandler(select_location, pattern="^buy_"),
+                CallbackQueryHandler(guide_handler, pattern="view_guide"),
+                CallbackQueryHandler(help_handler, pattern="^help_"),
                 CallbackQueryHandler(start, pattern="back_to_start")
             ],
-            ALBUM_INFO: [
-                CallbackQueryHandler(payment_info, pattern="^loc_"),
-                CallbackQueryHandler(menu_handler, pattern="back_to_menu")
+            LOCATION_STAGE: [
+                CallbackQueryHandler(payment_page, pattern="^loc_"),
+                CallbackQueryHandler(main_menu, pattern="to_menu"),
+                CallbackQueryHandler(start, pattern="back_to_start")
             ],
-            PROOF_SECTION: [
-                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, proof_handler),
-                CallbackQueryHandler(album_select, pattern="back_to_album")
+            PROOF_STAGE: [
+                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, receive_proof),
+                CallbackQueryHandler(help_handler, pattern="^help_"),
+                CallbackQueryHandler(main_menu, pattern="to_menu")
             ]
         },
-        fallbacks=[CommandHandler("start", start)]
+        fallbacks=[CommandHandler("start", start), CallbackQueryHandler(start, pattern="back_to_start")]
     )
     app.add_handler(conv)
-    app.add_handler(CallbackQueryHandler(admin_action_handler, pattern="^adm_"))
+    app.add_handler(CallbackQueryHandler(admin_action, pattern="^adm_"))
     app.run_polling()
 
 if __name__ == "__main__": main()
