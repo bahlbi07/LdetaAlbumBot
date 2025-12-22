@@ -10,24 +10,44 @@ from translations import TRANSLATIONS
 
 load_dotenv()
 
+# ───────────────── CONFIG ─────────────────
+
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID"))
 POSTER = os.getenv("ALBUM_ART_FILE_ID")
 
 CHANNELS = {
-    'vol4': os.getenv("CHANNEL_ID_VOL_4"),
-    'vol3': os.getenv("CHANNEL_ID_VOL_3"),
-    'vol2': os.getenv("CHANNEL_ID_VOL_2"),
-    'vol1': os.getenv("CHANNEL_ID_VOL_1"),
+    "vol4": os.getenv("CHANNEL_ID_VOL_4"),
+    "vol3": os.getenv("CHANNEL_ID_VOL_3"),
+    "vol2": os.getenv("CHANNEL_ID_VOL_2"),
+    "vol1": os.getenv("CHANNEL_ID_VOL_1"),
 }
 
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT = range(5)
 
+# ───────────────── HELPERS ─────────────────
+
 def get_txt(lang, key, **kwargs):
-    text = TRANSLATIONS.get(lang, TRANSLATIONS['ti']).get(key, key)
+    text = TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key)
     return text.format(**kwargs)
 
-# ───────────────────────── START ─────────────────────────
+async def safe_edit(query, text, keyboard):
+    """Edits message safely whether it is photo or text"""
+    msg = query.message
+    if msg.photo:
+        await query.edit_message_caption(
+            caption=text,
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML
+        )
+    else:
+        await query.edit_message_text(
+            text=text,
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML
+        )
+
+# ───────────────── START ─────────────────
 
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
@@ -40,8 +60,6 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("🇪🇷/🇪🇹 ሳሆ", callback_data="l_saho")]
     ]
 
-    caption = "Please select your language"
-
     if update.callback_query:
         await update.callback_query.answer()
         await update.callback_query.message.delete()
@@ -50,19 +68,19 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_photo(
             chat_id=update.effective_chat.id,
             photo=POSTER,
-            caption=caption,
+            caption="Please select your language",
             reply_markup=InlineKeyboardMarkup(kb)
         )
     else:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=caption,
+            text="Please select your language",
             reply_markup=InlineKeyboardMarkup(kb)
         )
 
     return SELECT_LANG
 
-# ───────────────────────── LANGUAGE ─────────────────────────
+# ───────────────── LANGUAGE ─────────────────
 
 async def welcome_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -72,17 +90,16 @@ async def welcome_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["lang"] = lang
 
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_continue"), callback_data="go_menu")]]
-    text = get_txt(lang, "welcome_text", user_name=update.effective_user.first_name)
 
-    await query.edit_message_caption(
-        caption=text,
-        reply_markup=InlineKeyboardMarkup(kb),
-        parse_mode=ParseMode.HTML
+    await safe_edit(
+        query,
+        get_txt(lang, "welcome_text", user_name=update.effective_user.first_name),
+        InlineKeyboardMarkup(kb)
     )
 
     return GREETING
 
-# ───────────────────────── MENU ─────────────────────────
+# ───────────────── MENU ─────────────────
 
 async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -99,15 +116,15 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="restart")]
     ]
 
-    await query.edit_message_caption(
-        caption=get_txt(lang, "main_menu_prompt"),
-        reply_markup=InlineKeyboardMarkup(kb),
-        parse_mode=ParseMode.HTML
+    await safe_edit(
+        query,
+        get_txt(lang, "main_menu_prompt"),
+        InlineKeyboardMarkup(kb)
     )
 
     return MENU
 
-# ───────────────────────── LOCATION ─────────────────────────
+# ───────────────── LOCATION ─────────────────
 
 async def location_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -124,15 +141,15 @@ async def location_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]
     ]
 
-    await query.edit_message_caption(
-        caption=get_txt(lang, "ask_loc_text"),
-        reply_markup=InlineKeyboardMarkup(kb),
-        parse_mode=ParseMode.HTML
+    await safe_edit(
+        query,
+        get_txt(lang, "ask_loc_text"),
+        InlineKeyboardMarkup(kb)
     )
 
     return LOCATION
 
-# ───────────────────────── PAYMENT ─────────────────────────
+# ───────────────── PAYMENT ─────────────────
 
 async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -142,10 +159,10 @@ async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "loc_no":
         kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-        await query.edit_message_caption(
-            caption=get_txt(lang, "loc_out_unavailable"),
-            reply_markup=InlineKeyboardMarkup(kb),
-            parse_mode=ParseMode.HTML
+        await safe_edit(
+            query,
+            get_txt(lang, "loc_out_unavailable"),
+            InlineKeyboardMarkup(kb)
         )
         return LOCATION
 
@@ -154,16 +171,16 @@ async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
 
-    await query.edit_message_caption(
-        caption=get_txt(lang, "payment_instructions",
-                        album_title=album.upper(), price=price),
-        reply_markup=InlineKeyboardMarkup(kb),
-        parse_mode=ParseMode.HTML
+    await safe_edit(
+        query,
+        get_txt(lang, "payment_instructions",
+                album_title=album.upper(), price=price),
+        InlineKeyboardMarkup(kb)
     )
 
     return PAYMENT
 
-# ───────────────────────── GUIDE ─────────────────────────
+# ───────────────── GUIDE ─────────────────
 
 async def guide_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -172,15 +189,15 @@ async def guide_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data["lang"]
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
 
-    await query.edit_message_caption(
-        caption=get_txt(lang, "full_guide"),
-        reply_markup=InlineKeyboardMarkup(kb),
-        parse_mode=ParseMode.HTML
+    await safe_edit(
+        query,
+        get_txt(lang, "full_guide"),
+        InlineKeyboardMarkup(kb)
     )
 
     return MENU
 
-# ───────────────────────── PROOF ─────────────────────────
+# ───────────────── PROOF ─────────────────
 
 async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data["lang"]
@@ -194,16 +211,18 @@ async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(
         ADMIN_ID,
-        f"🆕 Payment proof\nUser: {user.mention_html()}\nAlbum: {album}",
+        f"🆕 Payment Proof\nUser: {user.mention_html()}\nAlbum: {album}",
         parse_mode=ParseMode.HTML
     )
 
     if update.message.photo:
         await update.message.forward(ADMIN_ID)
+    elif update.message.text:
+        await context.bot.send_message(ADMIN_ID, update.message.text)
 
     return ConversationHandler.END
 
-# ───────────────────────── MAIN ─────────────────────────
+# ───────────────── MAIN ─────────────────
 
 def main():
     app = Application.builder().token(TOKEN).build()
