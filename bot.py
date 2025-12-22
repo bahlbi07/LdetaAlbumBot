@@ -10,29 +10,19 @@ from translations import TRANSLATIONS
 
 load_dotenv()
 
-# ───────────────── CONFIG ─────────────────
-
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID"))
 POSTER = os.getenv("ALBUM_ART_FILE_ID")
 
-CHANNELS = {
-    "vol4": os.getenv("CHANNEL_ID_VOL_4"),
-    "vol3": os.getenv("CHANNEL_ID_VOL_3"),
-    "vol2": os.getenv("CHANNEL_ID_VOL_2"),
-    "vol1": os.getenv("CHANNEL_ID_VOL_1"),
-}
-
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT = range(5)
 
-# ───────────────── HELPERS ─────────────────
+# ───────────── HELPERS ─────────────
 
 def get_txt(lang, key, **kwargs):
     text = TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key)
     return text.format(**kwargs)
 
-async def safe_edit(query, text, keyboard):
-    """Edits message safely whether it is photo or text"""
+async def edit_any(query, text, keyboard):
     msg = query.message
     if msg.photo:
         await query.edit_message_caption(
@@ -47,7 +37,7 @@ async def safe_edit(query, text, keyboard):
             parse_mode=ParseMode.HTML
         )
 
-# ───────────────── START ─────────────────
+# ───────────── START ─────────────
 
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
@@ -66,44 +56,44 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if POSTER:
         await context.bot.send_photo(
-            chat_id=update.effective_chat.id,
-            photo=POSTER,
+            update.effective_chat.id,
+            POSTER,
             caption="Please select your language",
             reply_markup=InlineKeyboardMarkup(kb)
         )
     else:
         await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Please select your language",
+            update.effective_chat.id,
+            "Please select your language",
             reply_markup=InlineKeyboardMarkup(kb)
         )
 
     return SELECT_LANG
 
-# ───────────────── LANGUAGE ─────────────────
+# ───────────── LANGUAGE ─────────────
 
 async def welcome_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
+    q = update.callback_query
+    await q.answer()
 
-    lang = query.data.split("_")[1]
+    lang = q.data.split("_")[1]
     context.user_data["lang"] = lang
 
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_continue"), callback_data="go_menu")]]
 
-    await safe_edit(
-        query,
+    await edit_any(
+        q,
         get_txt(lang, "welcome_text", user_name=update.effective_user.first_name),
         InlineKeyboardMarkup(kb)
     )
 
     return GREETING
 
-# ───────────────── MENU ─────────────────
+# ───────────── MENU ─────────────
 
-async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
+async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
 
     lang = context.user_data["lang"]
 
@@ -116,24 +106,43 @@ async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="restart")]
     ]
 
-    await safe_edit(
-        query,
+    await edit_any(
+        q,
         get_txt(lang, "main_menu_prompt"),
         InlineKeyboardMarkup(kb)
     )
 
     return MENU
 
-# ───────────────── LOCATION ─────────────────
+# ───────────── HOW TO BUY (FIXED) ─────────────
 
-async def location_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
+async def guide_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
 
     lang = context.user_data["lang"]
 
-    if query.data.startswith("buy_"):
-        context.user_data["album"] = query.data.replace("buy_", "")
+    kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
+
+    await edit_any(
+        q,
+        get_txt(lang, "full_guide"),
+        InlineKeyboardMarkup(kb)
+    )
+
+    # 🔥 CRITICAL: STAY IN MENU
+    return MENU
+
+# ───────────── LOCATION ─────────────
+
+async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+
+    lang = context.user_data["lang"]
+
+    if q.data.startswith("buy_"):
+        context.user_data["album"] = q.data.replace("buy_", "")
 
     kb = [
         [InlineKeyboardButton(get_txt(lang, "loc_eth"), callback_data="loc_ok")],
@@ -141,29 +150,25 @@ async def location_select(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]
     ]
 
-    await safe_edit(
-        query,
+    await edit_any(
+        q,
         get_txt(lang, "ask_loc_text"),
         InlineKeyboardMarkup(kb)
     )
 
     return LOCATION
 
-# ───────────────── PAYMENT ─────────────────
+# ───────────── PAYMENT ─────────────
 
-async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
+async def payment_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
 
     lang = context.user_data["lang"]
 
-    if query.data == "loc_no":
+    if q.data == "loc_no":
         kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-        await safe_edit(
-            query,
-            get_txt(lang, "loc_out_unavailable"),
-            InlineKeyboardMarkup(kb)
-        )
+        await edit_any(q, get_txt(lang, "loc_out_unavailable"), InlineKeyboardMarkup(kb))
         return LOCATION
 
     album = context.user_data["album"]
@@ -171,8 +176,8 @@ async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
 
-    await safe_edit(
-        query,
+    await edit_any(
+        q,
         get_txt(lang, "payment_instructions",
                 album_title=album.upper(), price=price),
         InlineKeyboardMarkup(kb)
@@ -180,49 +185,19 @@ async def payment_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     return PAYMENT
 
-# ───────────────── GUIDE ─────────────────
-
-async def guide_screen(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    lang = context.user_data["lang"]
-    kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-
-    await safe_edit(
-        query,
-        get_txt(lang, "full_guide"),
-        InlineKeyboardMarkup(kb)
-    )
-
-    return MENU
-
-# ───────────────── PROOF ─────────────────
+# ───────────── PROOF ─────────────
 
 async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data["lang"]
-    album = context.user_data["album"]
-    user = update.effective_user
 
     await update.message.reply_text(
         get_txt(lang, "proof_received_msg"),
         parse_mode=ParseMode.HTML
     )
 
-    await context.bot.send_message(
-        ADMIN_ID,
-        f"🆕 Payment Proof\nUser: {user.mention_html()}\nAlbum: {album}",
-        parse_mode=ParseMode.HTML
-    )
-
-    if update.message.photo:
-        await update.message.forward(ADMIN_ID)
-    elif update.message.text:
-        await context.bot.send_message(ADMIN_ID, update.message.text)
-
     return ConversationHandler.END
 
-# ───────────────── MAIN ─────────────────
+# ───────────── MAIN ─────────────
 
 def main():
     app = Application.builder().token(TOKEN).build()
@@ -233,20 +208,21 @@ def main():
             CallbackQueryHandler(start_cmd, pattern="restart")
         ],
         states={
-            SELECT_LANG: [CallbackQueryHandler(welcome_handler, pattern="^l_")],
-            GREETING: [CallbackQueryHandler(main_menu, pattern="go_menu")],
+            SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
+            GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
             MENU: [
-                CallbackQueryHandler(location_select, pattern="^buy_"),
-                CallbackQueryHandler(guide_screen, pattern="guide"),
-                CallbackQueryHandler(start_cmd, pattern="restart")
+                CallbackQueryHandler(guide_handler, "^guide$"),
+                CallbackQueryHandler(location_handler, "^buy_"),
+                CallbackQueryHandler(menu_handler, "^go_menu$"),
+                CallbackQueryHandler(start_cmd, "^restart$")
             ],
             LOCATION: [
-                CallbackQueryHandler(payment_screen, pattern="^loc_"),
-                CallbackQueryHandler(main_menu, pattern="go_menu")
+                CallbackQueryHandler(payment_handler, "^loc_"),
+                CallbackQueryHandler(menu_handler, "^go_menu$")
             ],
             PAYMENT: [
                 MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, proof_handler),
-                CallbackQueryHandler(main_menu, pattern="go_menu")
+                CallbackQueryHandler(menu_handler, "^go_menu$")
             ]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
