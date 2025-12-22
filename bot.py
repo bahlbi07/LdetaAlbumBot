@@ -15,14 +15,42 @@ TOKEN = os.getenv("TELEGRAM_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID"))
 POSTER = os.getenv("ALBUM_ART_FILE_ID")
 
+# ቻናል ኣይዲታት (Channel IDs)
+CHANNEL_IDS = {
+    "vol1": -1003548469381,
+    "vol2": -1003540162347,
+    "vol3": -1003582450486,
+    "vol4": -1003116455873
+}
+
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT = range(5)
-# ንኣድሚን ምኽንያት ንምጽሓፍ ዘድሊ ስቴት
-ADMIN_REASON = 100 
 
 # ───────────── HELPERS ─────────────
 
 def get_txt(lang, key, **kwargs):
     text = TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key)
+    # ተወሳኺ መልእኽትታት ኣብቲ ዝሃብካኒ ፋይል ስለዘየለዉ ኣብዚ ብቐጥታ ንውስኾም
+    extra_msgs = {
+        'ti': {
+            'approve_success': "እቲ ዝሰደድኩምዎ ስክሪን ሻት ኣረጋጊፅና ኣለና። ✅\nእነሆ ናይቲ ቻናል መላግቦ (Link):",
+            'reject_msg': "ክረጋገፅ ኣይከኣለን እሞ በጃኦም ደጊሞም ይፈትኑ። ❌",
+            'feedback_vol4': "ሰላም፡ ቅድሚ 3 መዓልቲ ነቲ <b>Vol 4 'እየሱስ'</b> ዝብል ኣልበም ገዚእኩም ኔርኩም። ብዛዕባ እቲ ኣልበም ዘለኩም ሓሳብን ርኢቶን (Feedback) ንኽትሰዱልና ብትሕትና ንሓትት። የቐንየልና!"
+        },
+        'am': {
+            'approve_success': "የላኩትን ደረሰኝ አረጋግጠናል። ✅\nየቻናሉ ሊንክ ይኸው፦",
+            'reject_msg': "መረጋገጥ ስላልቻለ እባክዎ ደግመው ይሞክሩ። ❌",
+            'feedback_vol4': "ሰላም፡ ከ 3 ቀን በፊት <b>Vol 4 'ኢየሱስ'</b> አልበም ገዝተው ነበር። ስለ አልበሙ ያለዎትን አስተያየት ቢልኩልን ደስ ይለናል! እናመሰግናለን!"
+        },
+        'en': {
+            'approve_success': "Your payment has been verified. ✅\nHere is your access link:",
+            'reject_msg': "Verification failed. Please try again. ❌",
+            'feedback_vol4': "Hello! You purchased <b>Vol 4 'Eyesus'</b> 3 days ago. We would love to hear your feedback about the album. Thank you!"
+        }
+    }
+    
+    if key in extra_msgs.get(lang, extra_msgs['ti']):
+        return extra_msgs[lang if lang in extra_msgs else 'ti'][key].format(**kwargs)
+        
     return text.format(**kwargs)
 
 async def edit_any(query, text, keyboard):
@@ -117,22 +145,14 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     return MENU
 
-# ───────────── HOW TO BUY (FIXED) ─────────────
+# ───────────── HOW TO BUY ─────────────
 
 async def guide_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
     lang = context.user_data["lang"]
-
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-
-    await edit_any(
-        q,
-        get_txt(lang, "full_guide"),
-        InlineKeyboardMarkup(kb)
-    )
-
+    await edit_any(q, get_txt(lang, "full_guide"), InlineKeyboardMarkup(kb))
     return MENU
 
 # ───────────── LOCATION ─────────────
@@ -140,24 +160,15 @@ async def guide_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
     lang = context.user_data["lang"]
-
     if q.data.startswith("buy_"):
         context.user_data["album"] = q.data.replace("buy_", "")
-
     kb = [
         [InlineKeyboardButton(get_txt(lang, "loc_eth"), callback_data="loc_ok")],
         [InlineKeyboardButton(get_txt(lang, "loc_intl"), callback_data="loc_no")],
         [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]
     ]
-
-    await edit_any(
-        q,
-        get_txt(lang, "ask_loc_text"),
-        InlineKeyboardMarkup(kb)
-    )
-
+    await edit_any(q, get_txt(lang, "ask_loc_text"), InlineKeyboardMarkup(kb))
     return LOCATION
 
 # ───────────── PAYMENT ─────────────
@@ -165,132 +176,77 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def payment_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
-
     lang = context.user_data["lang"]
-
     if q.data == "loc_no":
         kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
         await edit_any(q, get_txt(lang, "loc_out_unavailable"), InlineKeyboardMarkup(kb))
         return LOCATION
-
     album = context.user_data["album"]
     price = "300" if album == "vol4" else "100"
-
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-
-    await edit_any(
-        q,
-        get_txt(lang, "payment_instructions",
-                album_title=album.upper(), price=price),
-        InlineKeyboardMarkup(kb)
-    )
-
+    await edit_any(q, get_txt(lang, "payment_instructions", album_title=album.upper(), price=price), InlineKeyboardMarkup(kb))
     return PAYMENT
 
-# ───────────── PROOF (UPDATED) ─────────────
+# ───────────── PROOF & ADMIN LOGIC ─────────────
 
 async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data.get("lang", "ti")
-    album = context.user_data.get("album", "unknown")
+    album = context.user_data.get("album", "vol1")
     user_id = update.effective_user.id
-    user_name = update.effective_user.first_name
-
-    # ናብ ኣድሚን መልእኽቲ ምስ Approve/Reject መጠወቒታት ምስዳድ
+    
+    # መጠወቒታት ንኣድሚን (Action, UserID, Album, Lang)
     admin_kb = [
         [
-            InlineKeyboardButton("✅ Approve", callback_data=f"adm_approve_{user_id}_{album}"),
-            InlineKeyboardButton("❌ Reject", callback_data=f"adm_reject_{user_id}_{album}")
+            InlineKeyboardButton("✅ Approve", callback_data=f"adm_app_{user_id}_{album}_{lang}"),
+            InlineKeyboardButton("❌ Reject", callback_data=f"adm_rej_{user_id}_{lang}")
         ]
     ]
     
-    admin_msg = f"🔔 **ሓድሽ ክፍሊት ተላኢኹ**\n\n👤 ተጠቃሚ: {user_name} (ID: {user_id})\n💿 ኣልበም: {album.upper()}"
+    admin_msg = f"<b>🔔 ሓድሽ ክፍሊት ተላኢኹ</b>\n\n👤 ተጠቃሚ: {update.effective_user.first_name}\n💿 ኣልበም: {album.upper()}"
     
     if update.message.photo:
-        await context.bot.send_photo(
-            chat_id=ADMIN_ID,
-            photo=update.message.photo[-1].file_id,
-            caption=admin_msg,
-            reply_markup=InlineKeyboardMarkup(admin_kb),
-            parse_mode=ParseMode.MARKDOWN
-        )
+        await context.bot.send_photo(ADMIN_ID, update.message.photo[-1].file_id, caption=admin_msg, reply_markup=InlineKeyboardMarkup(admin_kb), parse_mode=ParseMode.HTML)
     else:
-        await context.bot.send_message(
-            chat_id=ADMIN_ID,
-            text=f"{admin_msg}\n\n📄 ጽሑፍ: {update.message.text}",
-            reply_markup=InlineKeyboardMarkup(admin_kb),
-            parse_mode=ParseMode.MARKDOWN
-        )
+        await context.bot.send_message(ADMIN_ID, f"{admin_msg}\n📄 ጽሑፍ: {update.message.text}", reply_markup=InlineKeyboardMarkup(admin_kb), parse_mode=ParseMode.HTML)
 
-    await update.message.reply_text(
-        get_txt(lang, "proof_received_msg"),
-        parse_mode=ParseMode.HTML
-    )
-
+    await update.message.reply_text(get_txt(lang, "proof_received_msg"), parse_mode=ParseMode.HTML)
     return ConversationHandler.END
 
-# ───────────── ADMIN ACTIONS (NEW) ─────────────
-
-async def admin_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def admin_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     
-    data = query.data.split("_")
-    action = data[1] # approve or reject
-    target_user_id = data[2]
-    album = data[3]
+    parts = query.data.split("_")
+    action = parts[1] # app or rej
+    user_id = int(parts[2])
     
-    context.bot_data[f"admin_action_{ADMIN_ID}"] = {
-        "action": action,
-        "user_id": target_user_id,
-        "album": album
-    }
-    
-    await query.message.reply_text(
-        f"በጃኹም ነቲ {action} ዝገበርኩሉ **ምኽንያት** ጽሓፉ (ንተጠቃሚ ዝለኣኽ መልእኽቲ):",
-        parse_mode=ParseMode.MARKDOWN
-    )
-    return ADMIN_REASON
+    if action == "app":
+        album = parts[3]
+        lang = parts[4]
+        channel_id = CHANNEL_IDS.get(album)
+        
+        try:
+            # ዋን-ታይም ሊንክ ምፍጣር (member_limit=1)
+            invite_link = await context.bot.create_chat_invite_link(chat_id=channel_id, member_limit=1)
+            success_text = f"{get_txt(lang, 'approve_success')}\n\n{invite_link.invite_link}"
+            await context.bot.send_message(chat_id=user_id, text=success_text, parse_mode=ParseMode.HTML)
+            await query.edit_message_caption(caption=query.message.caption + "\n\n✅ <b>ተጸዲቑ ኣሎ! (ሊንክ ተላኢኹ)</b>", parse_mode=ParseMode.HTML)
+            
+            # ን Vol 4 ጥራይ ድሕሪ 3 መዓልቲ ፊድባክ ክሓትት Job ምስራዕ
+            if album == "vol4":
+                context.job_queue.run_once(send_feedback, when=3*24*60*60, chat_id=user_id, data=lang)
+                
+        except Exception as e:
+            await query.message.reply_text(f"Error: {str(e)}")
+            
+    elif action == "rej":
+        lang = parts[3]
+        await context.bot.send_message(chat_id=user_id, text=get_txt(lang, 'reject_msg'), parse_mode=ParseMode.HTML)
+        await query.edit_message_caption(caption=query.message.caption + "\n\n❌ <b>ተነጺጉ ኣሎ!</b>", parse_mode=ParseMode.HTML)
 
-async def admin_reason_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    admin_data = context.bot_data.get(f"admin_action_{ADMIN_ID}")
-    if not admin_data:
-        return ConversationHandler.END
-    
-    reason = update.message.text
-    user_id = int(admin_data["user_id"])
-    action = admin_data["action"]
-    album = admin_data["album"]
-    
-    if action == "approve":
-        msg = f"✅ **ክፍሊትኩም ተጸዲቑ ኣሎ!**\n\nምኽንያት: {reason}\n\nየቐንየልና!"
-        # እንተድኣ Vol 4 ኮይኑ ድሕሪ 3 መዓልቲ ፊድባክ ክሓትት Job ንሰርዓሉ
-        if album.lower() == "vol4":
-            context.job_queue.run_once(
-                send_feedback_request, 
-                when=3 * 24 * 60 * 60, # 3 መዓልቲ (ብሰከንድ)
-                chat_id=user_id,
-                name=f"feedback_{user_id}"
-            )
-    else:
-        msg = f"❌ **ክፍሊትኩም ኣይተጸደቐን**\n\nምኽንያት: {reason}\n\nበጃኹም ዳግም ፈትኑ ወይ ንኣድሚን ኣዘራርቡ።"
-
-    try:
-        await context.bot.send_message(chat_id=user_id, text=msg, parse_mode=ParseMode.MARKDOWN)
-        await update.message.reply_text("✅ መልእኽቲ ናብቲ ተጠቃሚ ብትኽክል ተላኢኹ ኣሎ።")
-    except Exception as e:
-        await update.message.reply_text(f"❌ መልእኽቲ ክለኣኽ ኣይከኣለን: {str(e)}")
-    
-    return ConversationHandler.END
-
-# ───────────── FEEDBACK JOB (NEW) ─────────────
-
-async def send_feedback_request(context: ContextTypes.DEFAULT_TYPE):
+async def send_feedback(context: ContextTypes.DEFAULT_TYPE):
     job = context.job
-    feedback_text = (
-        "ሰላም፡ ቅድሚ 3 መዓልቲ ነቲ **Vol 4 'እየሱስ'** ዝብል ኣልበም ገዚእኩም ኔርኩም። "
-        "ብዛዕባ እቲ ኣልበም ዘለኩም ሓሳብን ርኢቶን (Feedback) እንተሰዲድካልና ብጣዕሚ ንሕጎስ። የቐንየልና!"
-    )
-    await context.bot.send_message(chat_id=job.chat_id, text=feedback_text)
+    await context.bot.send_message(chat_id=job.chat_id, text=get_txt(job.data, 'feedback_vol4'), parse_mode=ParseMode.HTML)
 
 # ───────────── MAIN ─────────────
 
@@ -298,10 +254,7 @@ def main():
     app = Application.builder().token(TOKEN).build()
 
     conv = ConversationHandler(
-        entry_points=[
-            CommandHandler("start", start_cmd),
-            CallbackQueryHandler(start_cmd, pattern="restart")
-        ],
+        entry_points=[CommandHandler("start", start_cmd), CallbackQueryHandler(start_cmd, pattern="restart")],
         states={
             SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
             GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
@@ -318,17 +271,13 @@ def main():
             PAYMENT: [
                 MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, proof_handler),
                 CallbackQueryHandler(menu_handler, "^go_menu$")
-            ],
-            # ንኣድሚን ጥራይ ዝሰርሕ state
-            ADMIN_REASON: [MessageHandler(filters.TEXT & ~filters.COMMAND, admin_reason_handler)]
+            ]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
     )
 
-    # ኣድሚን Approve/Reject ምስ ጠወቐ ዝሰርሕ Handler
-    app.add_handler(CallbackQueryHandler(admin_button_click, pattern="^adm_"))
     app.add_handler(conv)
-    
+    app.add_handler(CallbackQueryHandler(admin_callback, pattern="^adm_"))
     app.run_polling()
 
 if __name__ == "__main__":
