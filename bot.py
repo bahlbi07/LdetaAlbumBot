@@ -11,7 +11,7 @@ from telegram.ext import (
 )
 from translations import TRANSLATIONS
 
-# Logging setup
+# Logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 load_dotenv()
@@ -21,24 +21,17 @@ ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID"))
 POSTER = os.getenv("ALBUM_ART_FILE_ID")
 
 CHANNEL_IDS = {
-    "vol1": -1003548469381,
-    "vol2": -1003540162347,
-    "vol3": -1003582450486,
-    "vol4": -1003606695407
+    "vol1": -1003548469381, "vol2": -1003540162347, "vol3": -1003582450486, "vol4": -1003606695407
 }
 
-# States
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT, ADMIN_BROADCAST = range(6)
 
-# ───────────── DATABASE SETUP (FIXED SYNTAX) ─────────────
 DB_PATH = "bot_database.db"
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # ተጠቀምቲ ንምምዝጋብ
     c.execute('''CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, lang TEXT, join_date TEXT)''')
-    # መሸጣ ንምምዝጋብ (Fixed: AUTOINCREMENT)
     c.execute('''CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, album TEXT, price INTEGER, date TEXT)''')
     conn.commit()
     conn.close()
@@ -62,28 +55,16 @@ def record_sale(user_id, album):
 
 init_db()
 
-# ───────────── HELPERS ─────────────
-
 def get_txt(lang, key, **kwargs):
-    # FAQ/Help ተወሳኺ ትርጉማት
-    extra = {
-        'ti': {'btn_help': "❓ ሓገዝ/FAQ", 'help_text': "<b>ሓገዝን ልሙዳት ሕቶታትን</b>\n\n1. ክፍሊት ምስ ፈጸምኩም ስእሊ ምስዳድ ኣይትረስዑ።\n2. ሊንክ ምስ መጸኩም ሓንሳብ ጥራይ እዩ ዝሰርሕ።\n3. ንተወሳኺ ሓገዝ: @MezemranLdetaMaryamMekelle"},
-        'am': {'btn_help': "❓ እርዳታ/FAQ", 'help_text': "<b>እርዳታ እና የተለመዱ ጥያቄዎች</b>\n\n1. ክፍያ ከፈጸሙ በኋላ ደረሰኝ መላክ አይርሱ።\n2. የቻናሉ ሊንክ አንዴ ብቻ ነው የሚሰራው።\n3. ለተጨማሪ እርዳታ: @MezemranLdetaMaryamMekelle"},
-        'en': {'btn_help': "❓ Help/FAQ", 'help_text': "<b>Help & FAQ</b>\n\n1. Don't forget to send proof after payment.\n2. Invite links are one-time use only.\n3. Support: @MezemranLdetaMaryamMekelle"}
-    }
-    
-    base = TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key)
-    if key in extra.get(lang, {}): return extra[lang][key]
-    return base.format(**kwargs)
+    return TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key).format(**kwargs)
 
 async def edit_any(query, text, keyboard):
-    msg = query.message
-    if msg.photo:
+    if query.message.photo:
         await query.edit_message_caption(caption=text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
     else:
         await query.edit_message_text(text=text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
 
-# ───────────── START ─────────────
+# ───────────── USER FLOW ─────────────
 
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
@@ -102,17 +83,12 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(update.effective_chat.id, "Please select your language", reply_markup=InlineKeyboardMarkup(kb))
     return SELECT_LANG
 
-# ───────────── HANDLERS ─────────────
-
 async def welcome_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
     lang = q.data.split("_")[1]
     context.user_data["lang"] = lang
-    
-    # ተጠቃሚ ምዝጋብ
     add_user(update.effective_user.id, lang)
-
     kb = [[InlineKeyboardButton(get_txt(lang, "btn_continue"), callback_data="go_menu")]]
     await edit_any(q, get_txt(lang, "welcome_text", user_name=update.effective_user.first_name), InlineKeyboardMarkup(kb))
     return GREETING
@@ -124,19 +100,10 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb = [
         [InlineKeyboardButton(get_txt(lang, "vol4"), callback_data="buy_vol4")],
         [InlineKeyboardButton(get_txt(lang, "vol3"), callback_data="buy_vol3"), InlineKeyboardButton(get_txt(lang, "vol2"), callback_data="buy_vol2")],
-        [InlineKeyboardButton(get_txt(lang, "vol1"), callback_data="buy_vol1"), InlineKeyboardButton(get_txt(lang, "btn_help"), callback_data="help")],
-        [InlineKeyboardButton(get_txt(lang, "btn_guide"), callback_data="guide")],
+        [InlineKeyboardButton(get_txt(lang, "vol1"), callback_data="buy_vol1"), InlineKeyboardButton(get_txt(lang, "btn_guide"), callback_data="guide")],
         [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="restart")]
     ]
     await edit_any(q, get_txt(lang, "main_menu_prompt"), InlineKeyboardMarkup(kb))
-    return MENU
-
-async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
-    lang = context.user_data["lang"]
-    kb = [[InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
-    await edit_any(q, get_txt(lang, "help_text"), InlineKeyboardMarkup(kb))
     return MENU
 
 async def guide_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -152,10 +119,8 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     lang = context.user_data["lang"]
     if q.data.startswith("buy_"): context.user_data["album"] = q.data.replace("buy_", "")
-    kb = [
-        [InlineKeyboardButton(get_txt(lang, "loc_eth"), callback_data="loc_ok"), InlineKeyboardButton(get_txt(lang, "loc_intl"), callback_data="loc_no")],
-        [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]
-    ]
+    kb = [[InlineKeyboardButton(get_txt(lang, "loc_eth"), callback_data="loc_ok"), InlineKeyboardButton(get_txt(lang, "loc_intl"), callback_data="loc_no")],
+          [InlineKeyboardButton(get_txt(lang, "btn_back"), callback_data="go_menu")]]
     await edit_any(q, get_txt(lang, "ask_loc_text"), InlineKeyboardMarkup(kb))
     return LOCATION
 
@@ -177,15 +142,13 @@ async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang = context.user_data.get("lang", "ti")
     album = context.user_data.get("album", "vol1")
     user_id = update.effective_user.id
-    admin_kb = [[
-        InlineKeyboardButton("✅ Approve", callback_data=f"adm_app_{user_id}_{album}_{lang}"),
-        InlineKeyboardButton("❌ Reject", callback_data=f"adm_rej_{user_id}_{lang}")
-    ]]
-    admin_msg = f"<b>🔔 ሓድሽ ክፍሊት ተላኢኹ</b>\n\n👤 ተጠቃሚ: {update.effective_user.first_name}\n💿 ኣልበም: {album.upper()}"
+    admin_kb = [[InlineKeyboardButton("✅ Approve", callback_data=f"adm_app_{user_id}_{album}_{lang}"),
+                 InlineKeyboardButton("❌ Reject", callback_data=f"adm_rej_{user_id}_{lang}")]]
+    admin_msg = f"🔔 <b>ሓድሽ ክፍሊት</b>\n👤 ተጠቃሚ: {update.effective_user.first_name}\n💿 ኣልበም: {album.upper()}"
     if update.message.photo:
         await context.bot.send_photo(ADMIN_ID, update.message.photo[-1].file_id, caption=admin_msg, reply_markup=InlineKeyboardMarkup(admin_kb), parse_mode=ParseMode.HTML)
     else:
-        await context.bot.send_message(ADMIN_ID, f"{admin_msg}\n📄 ጽሑፍ: {update.message.text}", reply_markup=InlineKeyboardMarkup(admin_kb), parse_mode=ParseMode.HTML)
+        await context.bot.send_message(ADMIN_ID, f"{admin_msg}\n📄 {update.message.text}", reply_markup=InlineKeyboardMarkup(admin_kb), parse_mode=ParseMode.HTML)
     await update.message.reply_text(get_txt(lang, "proof_received_msg"), parse_mode=ParseMode.HTML)
     return ConversationHandler.END
 
@@ -193,11 +156,9 @@ async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
-    kb = [
-        [InlineKeyboardButton("📊 ጸብጻብ (Stats)", callback_data="adm_stats")],
-        [InlineKeyboardButton("📢 መልእኽቲ ስደድ (Broadcast)", callback_data="adm_broadcast")]
-    ]
-    await update.message.reply_text("<b>እንቋዕ ናብ ናይ ኣድሚን ክፍሊ ብደሓን መጻእኩም</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    kb = [[InlineKeyboardButton("📊 ጸብጻብ (Stats)", callback_data="adm_stats")],
+          [InlineKeyboardButton("📢 መልእኽቲ ስደድ (Broadcast)", callback_data="adm_broadcast")]]
+    await update.message.reply_text("<b>Admin Panel</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
 
 async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -210,17 +171,14 @@ async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         c.execute("SELECT COUNT(*) FROM users")
         total_users = c.fetchone()[0]
         conn.close()
-        
-        txt = f"<b>📊 ናይ መሸጣ ጸብጻብ</b>\n\n👤 ጠቕላላ ተጠቀምቲ: {total_users}\n\n"
+        txt = f"<b>📊 ጸብጻብ</b>\n👤 ጠቕላላ ተጠቀምቲ: {total_users}\n\n"
         for s in stats: txt += f"💿 {s[0].upper()}: {s[1]} መሸጣ ({s[2]} ብር)\n"
         await q.message.reply_text(txt, parse_mode=ParseMode.HTML)
-        
     elif q.data == "adm_broadcast":
-        await q.message.reply_text("<b>በጃኹም ናብ ኩሎም ተጠቀምቲ ክለኣኽ እትደልዩዎ መልእኽቲ ጽሓፉ፦</b>", parse_mode=ParseMode.HTML)
+        await q.message.reply_text("<b>በጃኹም መልእኽቲ ወይ ስእሊ ምስ ጽሑፍ ስደዱ፦</b>", parse_mode=ParseMode.HTML)
         return ADMIN_BROADCAST
 
 async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.message.text
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT user_id FROM users")
@@ -230,59 +188,42 @@ async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
     count = 0
     for u in users:
         try:
-            await context.bot.send_message(chat_id=u[0], text=f"🔔 <b>መልእኽቲ ካብ ኣድሚን</b>\n\n{msg}", parse_mode=ParseMode.HTML)
+            if update.message.photo:
+                await context.bot.send_photo(chat_id=u[0], photo=update.message.photo[-1].file_id, caption=update.message.caption, parse_mode=ParseMode.HTML)
+            else:
+                await context.bot.send_message(chat_id=u[0], text=update.message.text, parse_mode=ParseMode.HTML)
             count += 1
         except: continue
-    await update.message.reply_text(f"✅ መልእኽቲ ናብ {count} ተጠቀምቲ ተላኢኹ ኣሎ።")
+    await update.message.reply_text(f"✅ ናብ {count} ሰባት ተላኢኹ።")
     return ConversationHandler.END
 
 async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
     parts = q.data.split("_")
-    action, user_id, lang = parts[1], int(parts[2]), parts[-1]
-    
+    action, user_id, album, lang = parts[1], int(parts[2]), parts[3], parts[4]
     if action == "app":
-        album = parts[3]
-        channel_id = CHANNEL_IDS.get(album)
         try:
-            invite_link = await context.bot.create_chat_invite_link(chat_id=channel_id, member_limit=1)
-            # መሸጣ መዝግብ
+            invite_link = await context.bot.create_chat_invite_link(chat_id=CHANNEL_IDS.get(album), member_limit=1)
             record_sale(user_id, album)
-            
-            await context.bot.send_message(chat_id=user_id, text=f"✅ <b>ክፍሊትኩም ተረጋጊጹ ኣሎ!</b>\n\nእነሆ ሊንክ: {invite_link.invite_link}", parse_mode=ParseMode.HTML)
-            await q.edit_message_caption(caption=q.message.caption + f"\n\n✅ <b>ተጸዲቑ ኣሎ!</b>", parse_mode=ParseMode.HTML)
-            
-            if album == "vol4":
-                context.job_queue.run_once(send_feedback, when=3*24*60*60, chat_id=user_id, data=lang)
-        except Exception as e:
-            await q.message.reply_text(f"Error: {str(e)}")
-            
+            await context.bot.send_message(chat_id=user_id, text=f"✅ <b>ክፍሊት ተረጋጊጹ!</b>\n\nሊንክ: {invite_link.invite_link}", parse_mode=ParseMode.HTML)
+            await q.edit_message_caption(caption=q.message.caption + "\n✅ Approved", parse_mode=ParseMode.HTML)
+        except Exception as e: await q.message.reply_text(f"Error: {str(e)}")
     elif action == "rej":
-        await context.bot.send_message(chat_id=user_id, text="❌ <b>ክፍሊትኩም ኣይተጸደቐን።</b> በጃኹም ደጊምኩም ፈትኑ።", parse_mode=ParseMode.HTML)
-        await q.edit_message_caption(caption=q.message.caption + "\n\n❌ <b>ተነጺጉ ኣሎ!</b>", parse_mode=ParseMode.HTML)
-
-async def send_feedback(context: ContextTypes.DEFAULT_TYPE):
-    job = context.job
-    await context.bot.send_message(chat_id=job.chat_id, text="ሰላም፡ ብዛዕባ <b>Vol 4 'እየሱስ'</b> ዘለኩም ርኢቶ ንኽትሰዱልና ንሓትት። @MezemranLdetaMaryamMekelle", parse_mode=ParseMode.HTML)
-
-# ───────────── MAIN ─────────────
+        await context.bot.send_message(chat_id=user_id, text="❌ <b>ክፍሊት ኣይተጸደቐን።</b>", parse_mode=ParseMode.HTML)
+        await q.edit_message_caption(caption=q.message.caption + "\n❌ Rejected", parse_mode=ParseMode.HTML)
 
 def main():
     app = Application.builder().token(TOKEN).build()
     conv = ConversationHandler(
-        entry_points=[
-            CommandHandler("start", start_cmd),
-            CallbackQueryHandler(start_cmd, pattern="restart")
-        ],
+        entry_points=[CommandHandler("start", start_cmd), CallbackQueryHandler(start_cmd, pattern="restart")],
         states={
             SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
             GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
-            MENU: [CallbackQueryHandler(guide_handler, "^guide$"), CallbackQueryHandler(help_handler, "^help$"), 
-                   CallbackQueryHandler(location_handler, "^buy_"), CallbackQueryHandler(menu_handler, "^go_menu$"), CallbackQueryHandler(start_cmd, "^restart$")],
+            MENU: [CallbackQueryHandler(guide_handler, "^guide$"), CallbackQueryHandler(location_handler, "^buy_"), CallbackQueryHandler(start_cmd, "^restart$")],
             LOCATION: [CallbackQueryHandler(payment_handler, "^loc_"), CallbackQueryHandler(menu_handler, "^go_menu$")],
             PAYMENT: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")],
-            ADMIN_BROADCAST: [MessageHandler(filters.TEXT & ~filters.COMMAND, broadcast_sender)]
+            ADMIN_BROADCAST: [MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, broadcast_sender)]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
     )
@@ -292,5 +233,4 @@ def main():
     app.add_handler(conv)
     app.run_polling()
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
