@@ -24,6 +24,7 @@ CHANNEL_IDS = {
     "vol1": -1003548469381, "vol2": -1003540162347, "vol3": -1003582450486, "vol4": -1003606695407
 }
 
+# States - Added ADMIN_BROADCAST
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT, ADMIN_BROADCAST = range(6)
 
 DB_PATH = "bot_database.db"
@@ -67,6 +68,9 @@ async def edit_any(query, text, keyboard):
 # ───────────── USER FLOW ─────────────
 
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Register user immediately on start
+    add_user(update.effective_user.id, "ti")
+    
     context.user_data.clear()
     kb = [
         [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="l_ti"), InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="l_am")],
@@ -158,10 +162,10 @@ async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
     kb = [[InlineKeyboardButton("📊 ጸብጻብ (Stats)", callback_data="adm_stats")],
           [InlineKeyboardButton("📢 መልእኽቲ ስደድ (Broadcast)", callback_data="adm_broadcast")]]
-    await update.message.reply_text("<b>Admin Panel</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    await update.message.reply_text("<b>Admin Dashboard</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
+    return ADMIN_BROADCAST # Ensure state is caught
 
 async def reset_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # This command resets ALL stats and users to zero.
     if update.effective_user.id != ADMIN_ID: return
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -169,7 +173,7 @@ async def reset_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
     c.execute("DELETE FROM users")
     conn.commit()
     conn.close()
-    await update.message.reply_text("✅ ኩሉ ናይ መሸጣን ተጠቀምቲን ጸብጻብ ናብ ዜሮ ተመሊሱ ኣሎ።")
+    await update.message.reply_text("✅ ኩሉ ዳታ ናብ ዜሮ ተመሊሱ ኣሎ።")
 
 async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -190,6 +194,8 @@ async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         return ADMIN_BROADCAST
 
 async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID: return ConversationHandler.END
+    
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT user_id FROM users")
@@ -205,6 +211,7 @@ async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(chat_id=u[0], text=update.message.text, parse_mode=ParseMode.HTML)
             count += 1
         except: continue
+        
     await update.message.reply_text(f"✅ ናብ {count} ሰባት ተላኢኹ።")
     return ConversationHandler.END
 
@@ -217,7 +224,7 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
         try:
             invite_link = await context.bot.create_chat_invite_link(chat_id=CHANNEL_IDS.get(album), member_limit=1)
             record_sale(user_id, album)
-            await context.bot.send_message(chat_id=user_id, text=f"✅ <b>ክፍሊት ተረጋጊጹ!</b>\n\nሊንክ: {invite_link.invite_link}", parse_mode=ParseMode.HTML)
+            await context.bot.send_message(chat_id=user_id, text=f"✅ <b>ክፍሊት ተረጋጊጹ!</b>\n\nእነሆ ሊንክ: {invite_link.invite_link}", parse_mode=ParseMode.HTML)
             await q.edit_message_caption(caption=q.message.caption + "\n✅ Approved", parse_mode=ParseMode.HTML)
         except Exception as e: await q.message.reply_text(f"Error: {str(e)}")
     elif action == "rej":
@@ -227,20 +234,25 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
 def main():
     app = Application.builder().token(TOKEN).build()
     conv = ConversationHandler(
-        entry_points=[CommandHandler("start", start_cmd), CallbackQueryHandler(start_cmd, pattern="restart")],
+        entry_points=[
+            CommandHandler("start", start_cmd), 
+            CommandHandler("admin", admin_cmd),
+            CallbackQueryHandler(start_cmd, pattern="restart")
+        ],
         states={
             SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
             GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
             MENU: [CallbackQueryHandler(guide_handler, "^guide$"), CallbackQueryHandler(location_handler, "^buy_"), CallbackQueryHandler(start_cmd, "^restart$")],
             LOCATION: [CallbackQueryHandler(payment_handler, "^loc_"), CallbackQueryHandler(menu_handler, "^go_menu$")],
             PAYMENT: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")],
-            ADMIN_BROADCAST: [MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, broadcast_sender)]
+            ADMIN_BROADCAST: [
+                CallbackQueryHandler(admin_panel_callback, pattern="^adm_(stats|broadcast)"),
+                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, broadcast_sender)
+            ]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
     )
-    app.add_handler(CommandHandler("admin", admin_cmd))
-    app.add_handler(CommandHandler("reset_database", reset_database)) # New secret reset command
-    app.add_handler(CallbackQueryHandler(admin_panel_callback, pattern="^adm_(stats|broadcast)"))
+    app.add_handler(CommandHandler("reset_database", reset_database))
     app.add_handler(CallbackQueryHandler(admin_action_callback, pattern="^adm_(app|rej)"))
     app.add_handler(conv)
     app.run_polling()

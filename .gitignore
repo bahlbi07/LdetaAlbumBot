@@ -1,2 +1,4 @@
 venv/
 .env
+bot_database.db     # ዳታቤዝ ናብ GitHub ከይከይድ
+__pycache__/        # ፓይተን ባዕሉ ዝፈጥሮም ዘየድልዩ ፋይላት
