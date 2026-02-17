@@ -24,7 +24,7 @@ CHANNEL_IDS = {
     "vol1": -1003548469381, "vol2": -1003540162347, "vol3": -1003582450486, "vol4": -1003606695407
 }
 
-# States - Added ADMIN_BROADCAST
+# States
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT, ADMIN_BROADCAST = range(6)
 
 DB_PATH = "bot_database.db"
@@ -68,9 +68,7 @@ async def edit_any(query, text, keyboard):
 # ───────────── USER FLOW ─────────────
 
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Register user immediately on start
     add_user(update.effective_user.id, "ti")
-    
     context.user_data.clear()
     kb = [
         [InlineKeyboardButton("🇪🇹 ትግርኛ", callback_data="l_ti"), InlineKeyboardButton("🇪🇹 አማርኛ", callback_data="l_am")],
@@ -156,14 +154,13 @@ async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(get_txt(lang, "proof_received_msg"), parse_mode=ParseMode.HTML)
     return ConversationHandler.END
 
-# ───────────── ADMIN PANEL ─────────────
+# ───────────── ADMIN INDEPENDENT HANDLERS ─────────────
 
 async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
     kb = [[InlineKeyboardButton("📊 ጸብጻብ (Stats)", callback_data="adm_stats")],
           [InlineKeyboardButton("📢 መልእኽቲ ስደድ (Broadcast)", callback_data="adm_broadcast")]]
     await update.message.reply_text("<b>Admin Dashboard</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
-    return ADMIN_BROADCAST # Ensure state is caught
 
 async def reset_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
@@ -175,10 +172,12 @@ async def reset_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn.close()
     await update.message.reply_text("✅ ኩሉ ዳታ ናብ ዜሮ ተመሊሱ ኣሎ።")
 
-async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def admin_callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
-    await q.answer()
+    if update.effective_user.id != ADMIN_ID: return
+    
     if q.data == "adm_stats":
+        await q.answer()
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("SELECT album, COUNT(*), SUM(price) FROM sales GROUP BY album")
@@ -189,12 +188,16 @@ async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         txt = f"<b>📊 ጸብጻብ</b>\n👤 ጠቕላላ ተጠቀምቲ: {total_users}\n\n"
         for s in stats: txt += f"💿 {s[0].upper()}: {s[1]} መሸጣ ({s[2]} ብር)\n"
         await q.message.reply_text(txt, parse_mode=ParseMode.HTML)
+        
     elif q.data == "adm_broadcast":
-        await q.message.reply_text("<b>በጃኹም መልእኽቲ ወይ ስእሊ ምስ ጽሑፍ ስደዱ፦</b>", parse_mode=ParseMode.HTML)
-        return ADMIN_BROADCAST
+        await q.answer()
+        await q.message.reply_text("<b>በጃኹም መልእኽቲ ወይ ስእሊ ምስ ጽሑፍ ስደዱ (Broadcast)፦</b>", parse_mode=ParseMode.HTML)
+        context.user_data["admin_state"] = "BROADCASTING"
 
-async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID: return ConversationHandler.END
+async def broadcast_msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Only process if admin is in broadcasting state
+    if update.effective_user.id != ADMIN_ID or context.user_data.get("admin_state") != "BROADCASTING":
+        return
     
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -212,8 +215,8 @@ async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
             count += 1
         except: continue
         
+    context.user_data["admin_state"] = None # Reset state
     await update.message.reply_text(f"✅ ናብ {count} ሰባት ተላኢኹ።")
-    return ConversationHandler.END
 
 async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -231,28 +234,30 @@ async def admin_action_callback(update: Update, context: ContextTypes.DEFAULT_TY
         await context.bot.send_message(chat_id=user_id, text="❌ <b>ክፍሊት ኣይተጸደቐን።</b>", parse_mode=ParseMode.HTML)
         await q.edit_message_caption(caption=q.message.caption + "\n❌ Rejected", parse_mode=ParseMode.HTML)
 
+# ───────────── MAIN ─────────────
+
 def main():
     app = Application.builder().token(TOKEN).build()
+    
+    # 1. Independent Admin Handlers (Priority)
+    app.add_handler(CommandHandler("admin", admin_cmd))
+    app.add_handler(CommandHandler("reset_database", reset_database))
+    app.add_handler(CallbackQueryHandler(admin_callback_router, pattern="^adm_(stats|broadcast)"))
+    app.add_handler(MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, broadcast_msg_handler), group=1)
+    
+    # 2. Main User Conversation
     conv = ConversationHandler(
-        entry_points=[
-            CommandHandler("start", start_cmd), 
-            CommandHandler("admin", admin_cmd),
-            CallbackQueryHandler(start_cmd, pattern="restart")
-        ],
+        entry_points=[CommandHandler("start", start_cmd), CallbackQueryHandler(start_cmd, pattern="restart")],
         states={
             SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
             GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
             MENU: [CallbackQueryHandler(guide_handler, "^guide$"), CallbackQueryHandler(location_handler, "^buy_"), CallbackQueryHandler(start_cmd, "^restart$")],
             LOCATION: [CallbackQueryHandler(payment_handler, "^loc_"), CallbackQueryHandler(menu_handler, "^go_menu$")],
-            PAYMENT: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")],
-            ADMIN_BROADCAST: [
-                CallbackQueryHandler(admin_panel_callback, pattern="^adm_(stats|broadcast)"),
-                MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, broadcast_sender)
-            ]
+            PAYMENT: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
     )
-    app.add_handler(CommandHandler("reset_database", reset_database))
+    
     app.add_handler(CallbackQueryHandler(admin_action_callback, pattern="^adm_(app|rej)"))
     app.add_handler(conv)
     app.run_polling()
