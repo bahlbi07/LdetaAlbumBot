@@ -160,6 +160,17 @@ async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
           [InlineKeyboardButton("📢 መልእኽቲ ስደድ (Broadcast)", callback_data="adm_broadcast")]]
     await update.message.reply_text("<b>Admin Panel</b>", reply_markup=InlineKeyboardMarkup(kb), parse_mode=ParseMode.HTML)
 
+async def reset_database(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # This command resets ALL stats and users to zero.
+    if update.effective_user.id != ADMIN_ID: return
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("DELETE FROM sales")
+    c.execute("DELETE FROM users")
+    conn.commit()
+    conn.close()
+    await update.message.reply_text("✅ ኩሉ ናይ መሸጣን ተጠቀምቲን ጸብጻብ ናብ ዜሮ ተመሊሱ ኣሎ።")
+
 async def admin_panel_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     await q.answer()
@@ -190,7 +201,7 @@ async def broadcast_sender(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             if update.message.photo:
                 await context.bot.send_photo(chat_id=u[0], photo=update.message.photo[-1].file_id, caption=update.message.caption, parse_mode=ParseMode.HTML)
-            else:
+            elif update.message.text:
                 await context.bot.send_message(chat_id=u[0], text=update.message.text, parse_mode=ParseMode.HTML)
             count += 1
         except: continue
@@ -228,6 +239,7 @@ def main():
         fallbacks=[CommandHandler("start", start_cmd)]
     )
     app.add_handler(CommandHandler("admin", admin_cmd))
+    app.add_handler(CommandHandler("reset_database", reset_database)) # New secret reset command
     app.add_handler(CallbackQueryHandler(admin_panel_callback, pattern="^adm_(stats|broadcast)"))
     app.add_handler(CallbackQueryHandler(admin_action_callback, pattern="^adm_(app|rej)"))
     app.add_handler(conv)

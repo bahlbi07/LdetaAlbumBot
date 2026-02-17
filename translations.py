@@ -41,13 +41,13 @@ TRANSLATIONS = {
             "2️⃣ <b>ክፈል፦</b> ኣብ ዝመጸልካ ቁጽሪ ባንክ ዝተጠቀሰ ብር ስደድ።\n"
             "3️⃣ <b>ስእሊ ስደድ፦</b> ደረሰኝካ ፎቶ (Screenshot) ናብዚ ቦት ስደዶ።\n"
             "4️⃣ <b>ተቐበል፦</b> ኣድሚን ምስ ረኣዮ ናይቲ መዝሙር ሊንክ ክሰደልካ እዩ።\n\n"
-            "<i>ዝኾነ እንተጸገመ <code>@MezemranLdetaMaryamMekelle</code> ጸሓፍ።</i>"
+            "<i>ዝኾነ እንተጸገመ <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a> ጸሓፍ።</i>"
         ),
         'success_user_msg': (
             "<b>🎉 እንቋዕ ደስ በለኩም!</b>\n\n"
             "ክፍሊትኩም ተረጋጊጹ ኣሎ። ንኣልበም <b>{album_title}</b> ብዝግባእ ዓዲግኩም ኣለኹም። ተባረኹ!"
         ),
-        'feedback_link': "<b>🙏 ርኢቶኹም፦</b>\nዝኾነ ሓሳብ እንተሃልዩኩም በዚ ክትጽሕፉልና ትኽእሉ ኢኹም፦ <code>@MezemranLdetaMaryamMekelle</code>",
+        'feedback_link': "<b>🙏 ርኢቶኹም፦</b>\nዝኾነ ሓሳብ እንተሃልዩኩም በዚ ክትጽሕፉልና ትኽእሉ ኢኹም፦ <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a>",
     },
     'am': {
         'welcome_text': (
@@ -93,7 +93,7 @@ TRANSLATIONS = {
             "<b>🎉 እንኳን ደስ አለዎት!</b>\n\n"
             "ክፍያዎ በትክክል ተረጋግጧል። አልበም <b>{album_title}</b>ን በተሳካ ሁኔታ ገዝተዋል። ተባረኩ!"
         ),
-        'feedback_link': "<b>🙏 አስተያየትዎ፦</b>\nማንኛውም አስተያየት ካለዎት በዚህ ሊንክ ያሳውቁን፦ <code>@MezemranLdetaMaryamMekelle</code>",
+        'feedback_link': "<b>🙏 አስተያየትዎ፦</b>\nማንኛውም አስተያየት ካለዎት በዚህ ሊንክ ያሳውቁን፦ <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a>",
     },
     'en': {
         'welcome_text': (
@@ -135,13 +135,13 @@ TRANSLATIONS = {
             "2️⃣ <b>Payment:</b> Send the amount to the provided bank account.\n"
             "3️⃣ <b>Send Photo:</b> Send a screenshot of your receipt here.\n"
             "4️⃣ <b>Access:</b> Once verified, the admin will send you the channel link.\n\n"
-            "<i>For support, contact: <code>@MezemranLdetaMaryamMekelle</code></i>"
+            "<i>For support, contact: <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a></i>"
         ),
         'success_user_msg': (
             "<b>🎉 Congratulations!</b>\n\n"
             "Your payment has been verified. You have successfully purchased <b>{album_title}</b>. God bless you!"
         ),
-        'feedback_link': "<b>🙏 Feedback:</b>\nIf you have any suggestions, please tell us at: <code>@MezemranLdetaMaryamMekelle</code>",
+        'feedback_link': "<b>🙏 Feedback:</b>\nIf you have any suggestions, please tell us at: <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a>",
     },
     'om': {
         'welcome_text': (
@@ -183,13 +183,13 @@ TRANSLATIONS = {
             "2️⃣ <b>Kaffali:</b> Lakkoofsa baankii dhufutti maallaqa ergi.\n"
             "3️⃣ <b>Suuraa Ergi:</b> Nagahee kaffaltii (Screenshot) bot kanaaf ergi.\n"
             "4️⃣ <b>Liinkii fudhadhu:</b> Admin yommuu mirkaneessu liinkii faarfannichaa siif erga.\n\n"
-            "<i>Yoo rakkoon mudate <code>@MezemranLdetaMaryamMekelle</code> irratti nuuf barreessaa.</i>"
+            "<i>Yoo rakkoon mudate <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a> irratti nuuf barreessaa.</i>"
         ),
         'success_user_msg': (
             "<b>🎉 Baga gammaddan!</b>\n\n"
             "Kaffaltiin keessan mirkanaa'eera. Albama <b>{album_title}</b> bitattaniittu. Eebbifamaa!"
         ),
-        'feedback_link': "<b>🙏 Yaada keessan:</b>\nYaada yoo qabaattan asirratti nuuf barreessaa: <code>@MezemranLdetaMaryamMekelle</code>",
+        'feedback_link': "<b>🙏 Yaada keessan:</b>\nYaada yoo qabaattan asirratti nuuf barreessaa: <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a>",
     },
     'saho': {
         'welcome_text': (
@@ -231,12 +231,12 @@ TRANSLATIONS = {
             "2️⃣ <b>ማላ ኡሑይ፦</b> ኮል የመተ ባንክህ ሎውሉ ሑሱቱመ ማል ኡሑይ።\n"
             "3️⃣ <b>እስእላይ ፋር፦</b> ደረሰን እስእል (Screenshot) ታለ ድድይ።\n"
             "4️⃣ <b>ጋራይ፦</b> ኣሞት ያብለጉል ታይ መዝሙር ሊንክ ኮህ ፋሮ ክዮ።\n\n"
-            "<i>ኩጉርስሳም ትንየምኮ <code>@MezemranLdetaMaryamMekelle</code> ኡክቱብ።</i>"
+            "<i>ኩጉርስሳም ትንየምኮ <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a> ኡክቱብ።</i>"
         ),
         'success_user_msg': (
             "<b>🎉 እንቋዕ ደስ በለኩም ዮንህም ባሳክ ኮህየም!</b>\n\n"
             "ክፍሊትኩም ተረጋጊጹ ኣሎ ማላ ቶሖይንም ነደገህ ናነ። ንኣልበም ኣልቦሙህ <b>{album_title}</b> ብዝግባእ ዓዲግኩም ኣለኹም ኣዳ ዕለህ ዳምተንህ ታንን። ተባረኹ አመበረካ!"
         ),
-        'feedback_link': "<b>🙏 ርኢቶኹም ስን አሰሮ ፦</b>\nዝኾነ ሓሳብ እንተሃልዩኩም በዚ ክትጽሕፉልና ትኽእሉ ኢኹም ፋደ ዕለህ ተልንምኮ ታለ ኡክቱባ፦ <code>@MezemranLdetaMaryamMekelle</code>",
+        'feedback_link': "<b>🙏 ርኢቶኹም ስን አሰሮ ፦</b>\nዝኾነ ሓሳብ እንተሃልዩኩም በዚ ክትጽሕፉልና ትኽእሉ ኢኹም ፋደ ዕለህ ተልንምኮ ታለ ኡክቱባ፦ <a href='https://t.me/MezemranLdetaMaryamMekelle'>@MezemranLdetaMaryamMekelle</a>",
     }
 }
