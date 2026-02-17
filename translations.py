@@ -7,7 +7,7 @@ TRANSLATIONS = {
             "እንቋዕ ናብቲ ጸጋን በረኸትን ዝመልኦ ወግዓዊ ዲጂታል መሸጢ ኣልበማት <b>'መዘምራን ልደታ ማርያም ቁምስና መቐለ'</b> ብደሓን መጻእኩም።\n\n"
             "እዚ ቦት ብቕልጡፍን ብውሑስን መገዲ መዝሙራት ክትዕድጉ ዝሕግዝ ዘመናዊ መሳርሒ እዩ።"
         ),
-        'btn_continue': "ይቐጽል ➡️", 
+        'btn_continue': "ይቐጽል ➡️",
         'main_menu_prompt': "<b>🌟 ዝርዝር ኣልበማት 🌟</b>\n\nክትባረኹሉ እትደልዩ ቅዱስ ኣልበም ካብዞም ኣብ ታሕቲ ዘለዉ ምረጹ፦",
         'vol4': "💿 እየሱስ (Vol 4) - 300 ብር",
         'vol3': "💿 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
@@ -32,7 +32,7 @@ TRANSLATIONS = {
         ),
         'proof_received_msg': (
             "<b>ተቐቢልናዮ ኣለና! ✅</b>\n\n"
-            "የቐንየልና! መረጋገጺኹም በጺሑና ኣሎ። ኣድሚን ምስ ኣረጋገጾ ናይቲ ቻናል መላግቦ (Link) ብኡንብኡ ክሰደልካ እዩ።\n\n"
+            "የቐንየልና! መረጋገጺኹም በጺሑና ኣሎ። ኣድሚን ምስ ኣረጋገጾ ናይቲ ቻናል መላግቦ (Link) ብኡንብኡ ክሰደልኩም እዩ።\n\n"
             "<i>በረኸት ረድኤት ቅድስት ድንግል ማርያም ኣይፈለየኩም!</i>"
         ),
         'full_guide': (
@@ -52,7 +52,7 @@ TRANSLATIONS = {
     'am': {
         'welcome_text': (
             "<b>ሰላም 👋 {user_name}</b>\n\n"
-            "ወደ <b>'የልደታ ማርያም መዘምራን'</b> ይፋዊ የዲጂታል አልበም መሸጫ በደህና መጡ።\n\n"
+            "ወደ <b>'የመቀሌ ልደታ ማርያም መዘምራን'</b> ይፋዊ የዲጂታል አልበም መሸጫ በደህና መጡ።\n\n"
             "ይህ ቦት መንፈሳዊ መዝሙራትን በታማኝነትና በፈጣን ሁኔታ እንዲገዙ ይረዳዎታል።"
         ),
         'main_menu_prompt': "<b>🌟 የአልበሞች ዝርዝር 🌟</b>\n\nእባክዎ መግዛት የሚፈልጉትን አልበም ይምረጡ፦",
@@ -66,7 +66,7 @@ TRANSLATIONS = {
         'loc_eth': "🇪🇹 በኢትዮጵያ ውስጥ",
         'loc_intl': "🌍 ከኢትዮጵያ ውጭ",
         'loc_out_unavailable': (
-            "<b>ይቅርታ ደንበኛችን! 🙏</b>\n\n"
+            "<b>ይቅርታ ምእመናን! 🙏</b>\n\n"
             "ከኢትዮጵያ ውጭ የሚደረግ ክፍያ ለጊዜው ስላልተጀመረ በኢትዮጵያ ባሉ ቤተሰቦችዎ በኩል እንዲገዙ በትሕትና እንጠይቃለን።"
         ),
         'payment_instructions': (
@@ -98,26 +98,26 @@ TRANSLATIONS = {
     'en': {
         'welcome_text': (
             "<b>Hello 👋 {user_name}</b>\n\n"
-            "Welcome to the gracious and blessed official digital album store of <b>'The Birthday Choir of the Diocese of Mekelle'</b>.\n\n"
-            "This bot is a modern tool to shop songs quickly and securely."
+            "Welcome to the official digital album store of <b>'Nativity of Mary Choir, Mekelle Diocese'</b>.\n\n"
+            "This bot is a modern tool to purchase spiritual albums quickly and securely."
         ),
-        'btn_continue': "Continue ➡️", 
-        'main_menu_prompt': "<b>🌟 Album List 🌟</b>\n\nSelect the holy album you want to be blessed with from the following:",
-        'vol4': "💿 Jesus (Vol 4) - 300 Br",
-        'vol3': "💿 We Believed in You (Vol 3) - 100 Br",
-        'vol2': "💿 We Have Hope (Vol 2) - 100 Br",
-        'vol1': "💿 I'll Sing for You (Vol 1) - 100 Br",
-        'btn_guide': "📖 How to buy (simple guide)",
-        'btn_back': "⬅️ back",
-        'ask_loc_text': "<b>📍 Where is your location?</b>\n\nPlease select your location to make a payment:",
-        'loc_eth': "🇪🇹 inside Ethiopia",
+        'btn_continue': "Continue ➡️",
+        'main_menu_prompt': "<b>🌟 Album List 🌟</b>\n\nPlease select the holy album you wish to buy:",
+        'vol4': "💿 Eyesus (Vol 4) - 300 ETB",
+        'vol3': "💿 Ne'aka Amina (Vol 3) - 100 ETB",
+        'vol2': "💿 Tesfa Alona (Vol 2) - 100 ETB",
+        'vol1': "💿 Kezimrelka (Vol 1) - 100 ETB",
+        'btn_guide': "📖 How to Buy (Simple Guide)",
+        'btn_back': "⬅️ Back",
+        'ask_loc_text': "<b>📍 Where is your location?</b>\n\nPlease select your current location:",
+        'loc_eth': "🇪🇹 Inside Ethiopia",
         'loc_intl': "🌍 Outside Ethiopia",
         'loc_out_unavailable': (
-            "<b>Sorry, customer! 🙏</b>\n\n"
-            "Foreign payments are not currently in effect. Please use your family or friends in Ethiopia to purchase."
+            "<b>Sorry! 🙏</b>\n\n"
+            "International payments are not currently active. Please use family or friends in Ethiopia to make your purchase."
         ),
         'payment_instructions': (
-            "<b>💎 To buy the album {album_title}</b>\n\n"
+            "<b>💎 To purchase {album_title}</b>\n\n"
             "Please pay <b>{price} Birr</b> to the following bank accounts:\n\n"
             "🏦 <b>Commercial Bank (CBE):</b>\n<code>1000639550323</code>\n\n"
             "🏦 <b>Bank of Abyssinia (BOA):</b>\n<code>196302506</code>\n\n"
@@ -125,71 +125,71 @@ TRANSLATIONS = {
             "Take a screenshot of the receipt and send it to this bot."
         ),
         'proof_received_msg': (
-            "<b>We've accepted it! ✅</b>\n\n"
-            "Thank you! We have received your confirmation. The admin will send you the channel link as soon as it is confirmed.\n\n"
-            "<i>May the Blessing and Help of the Blessed Virgin Mary be with you!</i>"
+            "<b>Received! ✅</b>\n\n"
+            "Thank you! We have received your confirmation. An admin will send you the access link once verified.\n\n"
+            "<i>May the blessing of the Blessed Virgin Mary be with you!</i>"
         ),
         'full_guide': (
             "<b>🌈 How to Buy? (Step by Step)</b>\n\n"
-            "1️⃣ <b>Select:</b> Touch the album you want to listen to.\n"
-            "2️⃣ <b>Payment:</b> Send the amount mentioned to the bank number you receive.\n"
-            "3️⃣ <b>Send Photo:</b> Send a screenshot of your receipt to this bot.\n"
-            "4️⃣ <b>Accept:</b> The admin will send you the link of the song when he sees it.\n\n"
-            "<i>If you have any problems, write <code>@MezemranLdetaMaryamMekelle</code>.</i>"
+            "1️⃣ <b>Select:</b> Choose the album you want to listen to.\n"
+            "2️⃣ <b>Payment:</b> Send the amount to the provided bank account.\n"
+            "3️⃣ <b>Send Photo:</b> Send a screenshot of your receipt here.\n"
+            "4️⃣ <b>Access:</b> Once verified, the admin will send you the channel link.\n\n"
+            "<i>For support, contact: <code>@MezemranLdetaMaryamMekelle</code></i>"
         ),
         'success_user_msg': (
             "<b>🎉 Congratulations!</b>\n\n"
-            "Your payment has been confirmed. You have duly purchased the album <b>{album_title}</b>. Blessed!"
+            "Your payment has been verified. You have successfully purchased <b>{album_title}</b>. God bless you!"
         ),
-        'feedback_link': "<b>🙏 Feedback:</b>\nIf you have any suggestions, please Tell us at: <code>@MezemranLdetaMaryamMekelle</code>",
+        'feedback_link': "<b>🙏 Feedback:</b>\nIf you have any suggestions, please tell us at: <code>@MezemranLdetaMaryamMekelle</code>",
     },
     'om': {
         'welcome_text': (
-            "<b>Akkam jirtu 👋 {user_name}</b>\n\n"
-            "Baga gara mana daldalaa albama dijitaalaa ofiisaa ayyaanaa fi eebbifamaa <b>'Farfannaa Guyyaa Dhalootaa Mana Lubummaa Mekelee'</b>tti dhuftan.\n\n"
-            "Boot kun meeshaa ammayyaa sirboota saffisaa fi nageenya qabuun bitachuuf gargaarudha."
+            "<b>Baga nagaan dhuftan 👋 {user_name}</b>\n\n"
+            "Gara bot gurgurtaa albama dijitaalaa ofiisaa <b>'Faarfattoota Maariyaam Lidetaa Diiyoosiisii Maqalee'</b> nagaan dhuftan.\n\n"
+            "Bootiin kun meeshaa ammayyaa faarfannoota qulqulluu saffisaa fi nageenyaan bitachuuf isiniif qophaaye dha."
         ),
         'btn_continue': "Itti fufa ➡️",
-        'main_menu_prompt': "<b>🌟 Tarree Albamii 🌟</b>\n\nAlbamii qulqulluu eebbifamuu barbaaddu kanneen armaan gadii keessaa filadhu:",
-        'vol4': "💿 Yesus (Jildii 4ffaa) - 300 Br",
-        'vol3': "💿 Sitti Amanne (Jildii 3) - 100 Br",
-        'vol2': "💿 Abdii Qabna (Jildii 2ffaa) - 100 Br",
-        'vol1': "💿 Siif Sirba (Jildii 1ffaa) - 100 Br",
-        'btn_guide': "📖 Akkaataa itti bitachuu (qajeelfama salphaa)",
-        'btn_back': "⬅️ duuba",
-        'ask_loc_text': "<b>📍 Bakki kee eessa jira?</b>\n\nMaaloo kaffaltii raawwachuuf bakka kee filadhu:",
-        'loc_eth': "🇪🇹 Itoophiyaa keessaa",
-        'loc_intl': "🌍 Itoophiyaan alatti",
+        'main_menu_prompt': "<b>🌟 Tarree Albamootaa 🌟</b>\n\nAlbamoota eebbifamoo armaan gadii keessaa kan barbaaddan filadhaa:",
+        'vol4': "💿 Eyesus (Vol 4) - 300 ETB",
+        'vol3': "💿 Ne'aka Amina (Vol 3) - 100 ETB",
+        'vol2': "💿 Tesfa Alona (Vol 2) - 100 ETB",
+        'vol1': "💿 Kezimrelka (Vol 1) - 100 ETB",
+        'btn_guide': "📖 Akkaataa itti bitamu (Qajeelfama)",
+        'btn_back': "⬅️ Duubatti",
+        'ask_loc_text': "<b>📍 Iddoo jirtan filadhaa</b>\n\nKaffaltii raawwachuuf maaloo bakka jirtan filadhaa:",
+        'loc_eth': "🇪🇹 Itoophiyaa Keessa",
+        'loc_intl': "🌍 Itoophiyaan Alatti",
         'loc_out_unavailable': (
-            "<b>Dhiifama maamila! 🙏</b>\n\n"
-            "Kaffaltiin biyya alaa yeroo ammaa hojiirra hin jiru. Maaloo maatii ykn hiriyoota keessan Itiyoophiyaa keessa jiran fayyadamuun bitachuu dandeessu."
+            "<b>Dhiifama maamila keenya! 🙏</b>\n\n"
+            "Kaffaltiin biyya alaa yeroo ammaa hin jiru. Maaloo maatii ykn hiriyoota keessan Itoophiyaa jiran fayyadamuun bitaa."
         ),
         'payment_instructions': (
-            "<b>💎 Albamii {album_title} bitachuuf</b>\n\n"
-            "Akkaawuntii baankii armaan gadii irratti <b>{price} Birr</b> kaffalaa:\n\n"
-            "🏦 <b>Baankii Nigdi (CBE):</b>\n<code>1000639550323</code>\n\n"
+            "<b>💎 Albama {album_title} bitachuuf</b>\n\n"
+            "Maaloo kaffaltii <b>{price} Birrii</b> herreega baankii armaan gadii irratti raawwadhaa:\n\n"
+            "🏦 <b>Baankii daldalaa (CBE):</b>\n<code>1000639550323</code>\n\n"
             "🏦 <b>Baankii Abisiiniyaa (BOA):</b>\n<code>196302506</code>\n\n"
             "<b>✨ Kaffaltii booda:</b>\n"
-            "Nagahee sana (screenshot) fudhadhaatii gara bot kanaaf ergaa."
+            "Nagahee (Screenshot) fudhattanii bot kanaan nuuf ergaa."
         ),
         'proof_received_msg': (
-            "<b>fudhanneerra! ✅</b>\n\n"
-            "Galatoomaa! Mirkaneessi keessan arganneerra. Admin akkuma mirkanaa'een link chaanaalii isiniif erga.\n\n"
-            "<i>Eebbi fi Gargaarsi Qulqulleettii Dubroo Maariyaam isin waliin haa ta'u!</i>"
+            "<b>Nagaheen keessan nu ga'eera! ✅</b>\n\n"
+            "Galatoomaa! Mirkaneessi keessan nu ga'eera. Admin erga mirkaneessee booda liinkii chaanaalii isiniif erga.\n\n"
+            "<i>Eebbi fi gargaarsi Qulqulleettii Dubroo Maariyaam isin waliin haa ta'u!</i>"
         ),
         'full_guide': (
-            "<b>🌈 Akkamitti Bituu? (Tarkaanfiin)</b>\n\n"
-            "1️⃣ <b>Filadhu:</b> Albamii dhaggeeffachuu barbaaddu tuquun.\n"
-            "2️⃣ <b>Kaffaltii:</b> Maallaqa caqafame gara lakkoofsa baankii argattutti ergi.\n"
-            "3️⃣ <b>Suuraa ergi:</b> Suuraa iskiriinii nagahee keessanii gara bot kanaatti ergi.\n"
-            "4️⃣ <b>Fudhadhu:</b> Admin yeroo arge link sirbichaa siif erga.\n\n"
-            "<i>Yoo rakkoon si mudate <code>@MezemranLdetaMaryamMekelle</code> barreessi.</i>"
+            "<b>🌈 Akkamitti Bitama? (Tarkaanfiidhaan)</b>\n\n"
+            "1️⃣ <b>Filadhu:</b> Albama dhaggeeffachuu barbaaddu tuqi.\n"
+            "2️⃣ <b>Kaffali:</b> Lakkoofsa baankii dhufutti maallaqa ergi.\n"
+            "3️⃣ <b>Suuraa Ergi:</b> Nagahee kaffaltii (Screenshot) bot kanaaf ergi.\n"
+            "4️⃣ <b>Liinkii fudhadhu:</b> Admin yommuu mirkaneessu liinkii faarfannichaa siif erga.\n\n"
+            "<i>Yoo rakkoon mudate <code>@MezemranLdetaMaryamMekelle</code> irratti nuuf barreessaa.</i>"
         ),
         'success_user_msg': (
             "<b>🎉 Baga gammaddan!</b>\n\n"
-            "Kaffaltiin kee mirkanaa'eera. Albamii <b>{album_title}</b> sirnaan bitatteetta. Eebbifamaa!"
+            "Kaffaltiin keessan mirkanaa'eera. Albama <b>{album_title}</b> bitattaniittu. Eebbifamaa!"
         ),
-        'feedback_link': "<b>🙏 Yaada:</b>\nYaada yoo qabaattan: <code>@MezemranLdetaMaryamMekelle</code> irratti nuuf ergaa",
+        'feedback_link': "<b>🙏 Yaada keessan:</b>\nYaada yoo qabaattan asirratti nuuf barreessaa: <code>@MezemranLdetaMaryamMekelle</code>",
     },
     'saho': {
         'welcome_text': (
