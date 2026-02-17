@@ -30,7 +30,7 @@ CHANNEL_IDS = {
 # States
 SELECT_LANG, GREETING, MENU, LOCATION, PAYMENT, ADMIN_BROADCAST = range(6)
 
-# ───────────── DATABASE SETUP ─────────────
+# ───────────── DATABASE SETUP (FIXED SYNTAX) ─────────────
 DB_PATH = "bot_database.db"
 
 def init_db():
@@ -38,8 +38,8 @@ def init_db():
     c = conn.cursor()
     # ተጠቀምቲ ንምምዝጋብ
     c.execute('''CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY, lang TEXT, join_date TEXT)''')
-    # መሸጣ ንምምዝጋብ
-    c.execute('''CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY AUTO_INCREMENT, user_id INTEGER, album TEXT, price INTEGER, date TEXT)''')
+    # መሸጣ ንምምዝጋብ (Fixed: AUTOINCREMENT)
+    c.execute('''CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, album TEXT, price INTEGER, date TEXT)''')
     conn.commit()
     conn.close()
 
@@ -71,6 +71,7 @@ def get_txt(lang, key, **kwargs):
         'am': {'btn_help': "❓ እርዳታ/FAQ", 'help_text': "<b>እርዳታ እና የተለመዱ ጥያቄዎች</b>\n\n1. ክፍያ ከፈጸሙ በኋላ ደረሰኝ መላክ አይርሱ።\n2. የቻናሉ ሊንክ አንዴ ብቻ ነው የሚሰራው።\n3. ለተጨማሪ እርዳታ: @MezemranLdetaMaryamMekelle"},
         'en': {'btn_help': "❓ Help/FAQ", 'help_text': "<b>Help & FAQ</b>\n\n1. Don't forget to send proof after payment.\n2. Invite links are one-time use only.\n3. Support: @MezemranLdetaMaryamMekelle"}
     }
+    
     base = TRANSLATIONS.get(lang, TRANSLATIONS["ti"]).get(key, key)
     if key in extra.get(lang, {}): return extra[lang][key]
     return base.format(**kwargs)
@@ -188,7 +189,7 @@ async def proof_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(get_txt(lang, "proof_received_msg"), parse_mode=ParseMode.HTML)
     return ConversationHandler.END
 
-# ───────────── ADMIN PANEL (NEW) ─────────────
+# ───────────── ADMIN PANEL ─────────────
 
 async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID: return
@@ -270,14 +271,17 @@ async def send_feedback(context: ContextTypes.DEFAULT_TYPE):
 def main():
     app = Application.builder().token(TOKEN).build()
     conv = ConversationHandler(
-        entry_points=[CommandHandler("start", start_cmd), CallbackQueryHandler(start_cmd, pattern="restart")],
+        entry_points=[
+            CommandHandler("start", start_cmd),
+            CallbackQueryHandler(start_cmd, pattern="restart")
+        ],
         states={
             SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
             GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
             MENU: [CallbackQueryHandler(guide_handler, "^guide$"), CallbackQueryHandler(help_handler, "^help$"), 
                    CallbackQueryHandler(location_handler, "^buy_"), CallbackQueryHandler(menu_handler, "^go_menu$"), CallbackQueryHandler(start_cmd, "^restart$")],
             LOCATION: [CallbackQueryHandler(payment_handler, "^loc_"), CallbackQueryHandler(menu_handler, "^go_menu$")],
-            PAYMENT: [MessageHandler(filters.PHOTO | filters.TEXT & ~filters.COMMAND, proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")],
+            PAYMENT: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")],
             ADMIN_BROADCAST: [MessageHandler(filters.TEXT & ~filters.COMMAND, broadcast_sender)]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
