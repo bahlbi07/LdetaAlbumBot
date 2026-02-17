@@ -37,11 +37,11 @@ TRANSLATIONS = {
         ),
         'full_guide': (
             "<b>🌈 ከመይ ጌርካ ትዕድግ? (ስጉምቲ ብስጉምቲ)</b>\n\n"
-            "1️⃣ <b>ምረጽ፦</b> ክትሰምዖ እትደሊ ኣልበም ንካ።\n"
-            "2️⃣ <b>ክፈል፦</b> ኣብ ዝመጸልካ ቁጽሪ ባንክ ብር ስደድ።\n"
+            "1️⃣ <b>ምረጽ፦</b> ክትሰምዖ እትደሊ ኣልበም ንኻእ።\n"
+            "2️⃣ <b>ክፈል፦</b> ኣብ ዝመጸልካ ቁጽሪ ባንክ ዝተጠቀሰ ብር ስደድ።\n"
             "3️⃣ <b>ስእሊ ስደድ፦</b> ደረሰኝካ ፎቶ (Screenshot) ናብዚ ቦት ስደዶ።\n"
             "4️⃣ <b>ተቐበል፦</b> ኣድሚን ምስ ረኣዮ ናይቲ መዝሙር ሊንክ ክሰደልካ እዩ።\n\n"
-            "<i>ዝኾነ እንተጸገመካ @Dmtsibereket ጸሓፍ።</i>"
+            "<i>ዝኾነ እንተጸገመ @Dmtsibereket ጸሓፍ።</i>"
         ),
         'success_user_msg': (
             "<b>🎉 እንቋዕ ደስ በለኩም!</b>\n\n"
@@ -60,9 +60,9 @@ TRANSLATIONS = {
         ),
         'main_menu_prompt': "<b>🌟 የአልበሞች ዝርዝር 🌟</b>\n\nእባክዎ መግዛት የሚፈልጉትን አልበም ይምረጡ፦",
         'vol4': "💿 ኢየሱስ (Vol 4) - 300 ብር",
-        'vol3': "💿 አንተን አምና (Vol 3) - 100 ብር",
-        'vol2': "💿 ተስፋ አለን (Vol 2) - 100 ብር",
-        'vol1': "💿 ልዘምርልህ (Vol 1) - 100 ብር",
+        'vol3': "💿 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
+        'vol2': "💿 ተስፋ ኣሎና (Vol 2) - 100 ብር",
+        'vol1': "💿 ክዝምረልካ (Vol 1) - 100 ብር",
         'btn_guide': "📖 እንዴት መግዛት ይቻላል? (ቀላል መመሪያ)",
         'btn_back': "⬅️ ተመለስ",
         'ask_loc_text': "<b>📍 ያሉበትን ቦታ ይምረጡ</b>\n\nክፍያ ለመፈጸም እባክዎ ያሉበትን ቦታ በመምረጥ ይቀጥሉ፦",
@@ -109,10 +109,10 @@ TRANSLATIONS = {
             "This bot helps you purchase our spiritual albums securely and quickly."
         ),
         'main_menu_prompt': "<b>🌟 Album List 🌟</b>\n\nPlease select the album you wish to buy:",
-        'vol4': "💿 Eyesus (Vol 4) - 300 ETB",
-        'vol3': "💿 Ne'aka Amina (Vol 3) - 100 ETB",
-        'vol2': "💿 Tesfa Alona (Vol 2) - 100 ETB",
-        'vol1': "💿 Kezimrelka (Vol 1) - 100 ETB",
+        'vol4': "💿 ኢየሱስ (Vol 4) - 300 ብር",
+        'vol3': "💿 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
+        'vol2': "💿 ተስፋ ኣሎና (Vol 2) - 100 ብር",
+        'vol1': "💿 ክዝምረልካ (Vol 1) - 100 ብር",
         'btn_guide': "📖 How to Buy (Simple Guide)",
         'btn_back': "⬅️ Back",
         'ask_loc_text': "<b>📍 Select Your Location</b>\n\nPlease select your current location:",
@@ -138,10 +138,10 @@ TRANSLATIONS = {
     'om': {
         'welcome_text': "<b>Nagaa 👋 {user_name}</b>\n\nGara bot gurgurtaa albamii <b>'Faarfattoota Lideta Mariam'</b> nagaan dhuftan.",
         'main_menu_prompt': "<b>🌟 Tarree Albamootaa 🌟</b>\n\nAlbamii bitachuu barbaaddan filadhaa:",
-        'vol4': "💿 Iyyasuus (Vol 4) - 300 ETB",
-        'vol3': "💿 Si Amannee (Vol 3) - 100 ETB",
-        'vol2': "💿 Abdii Qabna (Vol 2) - 100 ETB",
-        'vol1': "💿 Sin Faarsina (Vol 1) - 100 ETB",
+        'vol4': "💿 ኢየሱስ (Vol 4) - 300 ብር",
+        'vol3': "💿 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
+        'vol2': "💿 ተስፋ ኣሎና (Vol 2) - 100 ብር",
+        'vol1': "💿 ክዝምረልካ (Vol 1) - 100 ብር",
         'btn_guide': "📖 Akkamitti Bitama",
         'btn_back': "⬅️ Duubatti",
         'ask_loc_text': "<b>📍 Iddoo Jirtan</b>\n\nMaaloo kaffaltii raawwachuuf iddoo jirtan filadhaa:",
@@ -162,19 +162,51 @@ TRANSLATIONS = {
     # Saho/Irob (Placeholder - Uses Tigrinya)
     # ====================================================================================
     'saho': {
-        'welcome_text': "<b>ሰላም 👋 {user_name}</b>\n\nእንቋዕ ናብቲ ወግዓዊ መሸጢ ኣልበማት <b>'መዘምራን ልደታ ማርያም'</b> ብደሓን መጻእኩም።",
-        'main_menu_prompt': "<b>🌟 ዝርዝር ኣልበማት 🌟</b>\n\nክትባረኹሉ እትደልዩ ኣልበም ምረጹ፦",
+      'welcome_text': (
+        "<b>ሰላማ 👋 {user_name}</b>\n\n"
+        "ዮኒህም መዐ ፉጊህ ፀጋከ ባርካታሃ የመገ ዳባን ባሆት ዲጅተላ ክኒ ኣልቦም ኣለያምብሐ<b>' መቐለት ልደታ ማርያም መዛሙራን'</b> ናጋዳ ተመትንም።\n\n"
+        "ታይ ቦታ ደህከ ሳክተካህ መዝሙር ኣለዳምቶና ዲዕታና ዳባን ባሆት ኣራሕ ክኒ።"
+        ),
+        'btn_continue': "ኣለካታይ ➡️", # Added to bridge Welcome to Menu
+        'main_menu_prompt': "<b>🌟 ኣልቦም ባድሳህ 🌟</b>\n\nኣለታምባራኮና ጉርታና  የምበረከ ኣልቦም ታይ ዳባላ ኣሰሐሳ፦",
         'vol4': "💿 እየሱስ (Vol 4) - 300 ብር",
         'vol3': "💿 ንዓኻ ኣሚና (Vol 3) - 100 ብር",
         'vol2': "💿 ተስፋ ኣሎና (Vol 2) - 100 ብር",
         'vol1': "💿 ክዝምረልካ (Vol 1) - 100 ብር",
-        'btn_guide': "📖 ኣገባብ ኣተዓዳድጋ",
-        'btn_back': "⬅️ ተመለስ",
-        'ask_loc_text': "<b>📍 ቦታኹም ምረጹ</b>",
-        'loc_eth': "🇪🇹 ኣብ ውሽጢ ኢትዮጵያ",
-        'loc_intl': "🌍 ካብ ኢትዮጵያ ወጻኢ",
-        'payment_instructions': "🏦 CBE: 1000639550323 | BOA: 196302506",
-        'proof_received_msg': "✅ የቐንየልና! መረጋገጺኹም በጺሑና ኣሎ።",
-        'success_user_msg': "🎉 እንቋዕ ደስ በለኩም! ተባረኹ!",
-    }
+        'btn_guide': "📖 እሰንህ ዳማናም",
+        'btn_back': "⬅️ ጋሓ",
+        'ask_loc_text': "<b>📍ስን ባዶ አለክኒ?</b>\n\nማላ ታሓውናካ ኣይባዶሎ ገይምታና፦",
+        'loc_eth': "🇪🇹 ኢጦብያላ",
+        'loc_intl': "🌍ኢጦብያኮ በሓላ",
+        'loc_out_unavailable': (
+          "<b>ብሕላ ኖሀይ! 🙏</b>\n\n"
+          "ኣክ ባዶኮ ዳማናም ካዲህ ድዕመህ ምያነ።ኢጦብያል ያነማራህ አከከ ስን ዓድይታህ ኣራሓሕ አከ ዳምቶና ድዕታን።"
+          ),
+          'payment_instructions': (
+            "<b>💎 ኣልቦሙህ {album_title} ዳሞና</b>\n\n"
+            "ስን ዕሎህ <b>{price} ብር</b>ካታ ባንክ ኣራሓሕ ያክፋሎናይ፦\n\n"
+            "🏦 <b>ንግዲ ባንክ (CBE):</b>\n<code>1000639550323</code>\n\n"
+            "🏦 <b>ባንኪ ኣቢሲንያ (BOA):</b>\n<code>196302506</code>\n\n"
+            "<b>✨ማላ ትላሰንምኮ ላካል፦</b>\n"
+            "ቶይ ትላሰንም ታይቡሉየ ወርቀት(Screenshot) ኡጉሳይ ታለ ኖህ ፋራ።"
+            ),
+            'proof_received_msg': (
+              "<b>ጋራይነህ ናነ! ✅</b>\n\n"
+              "ጋብ ኖህ እሶይ!ቶይ ተከምህ ማይሳዳጋ ንማደህ ታነ። ኣሞይት የደገምኮ ታይ ቻናልህ ድብዶ (Link) ኣማይጉልካህ ስናህ ፋሮ ክዮ።\n\n"
+              "<i>ማርያም ንናህ ሓቶከ ባርካት ስንልህ ያኮይ!</i>"
+              ),
+              'full_guide': (
+                "<b>🌈 ኣይናህ እሰህ ዳምታ? (ካታታዎህ)</b>\n\n"
+                "1️⃣ <b>ዶር ፦</b>ታቦ ጉርታ ኣልቦም ዳጊ።\n"
+                "2️⃣ <b>ማላ ኡሑይ፦</b>ኮል የመተ ባንክህ ሎውሉ ሑሱቱመ ማል ኡሑይ።\n"
+                "3️⃣ <b>እስእላይ ፋር፦</b> ደረሰን እስእል (Screenshot) ታለ ድድይ።\n"
+                "4️⃣ <b>ጋራይ፦</b>ኣሞት ያብለጉል ታይ መዝሙር ሊንክ ኮህ ፋሮ ክዮ።\n\n"
+                "<i>ኩጉርስሳም ትንየምኮ@Dmtsibereket ኡክቱብ።</i>"
+                ),
+                'success_user_msg': (
+                  "<b>🎉 እንቋዕ ደስ በለኩም ዮንህም ባሳክ ኮህየም!</b>\n\n"
+                  "ክፍሊትኩም ተረጋጊጹ ኣሎ ማላ ቶሖይንም ነደገህ ናነ። ንኣልበም ኣልቦሙህ <b>{album_title}</b> ብዝግባእ ዓዲግኩም ኣለኹም ኣዳ ዕለህ ዳምተንህ ታንን። ተባረኹ አመበረካ!"
+                  ),
+                  'feedback_link': "<b>🙏 ርኢቶኹም ስን አሰሮ ፦</b>\nዝኾነ ሓሳብ እንተሃልዩኩም በዚ ክትጽሕፉልና ትኽእሉ ኢኹም ፋደ ዕለህ ተልንምኮ ታለ ኡክቱባ፦ @Dmtsibereket",
+                  },
 }
