@@ -248,12 +248,23 @@ def main():
     # 2. Main User Conversation
     conv = ConversationHandler(
         entry_points=[CommandHandler("start", start_cmd), CallbackQueryHandler(start_cmd, pattern="restart")],
-        states={
+states={
             SELECT_LANG: [CallbackQueryHandler(welcome_handler, "^l_")],
             GREETING: [CallbackQueryHandler(menu_handler, "^go_menu$")],
-            MENU: [CallbackQueryHandler(guide_handler, "^guide$"), CallbackQueryHandler(location_handler, "^buy_"), CallbackQueryHandler(start_cmd, "^restart$")],
-            LOCATION: [CallbackQueryHandler(payment_handler, "^loc_"), CallbackQueryHandler(menu_handler, "^go_menu$")],
-            PAYMENT: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), CallbackQueryHandler(menu_handler, "^go_menu$")]
+            MENU: [
+                CallbackQueryHandler(guide_handler, "^guide$"), 
+                CallbackQueryHandler(location_handler, "^buy_"), 
+                CallbackQueryHandler(menu_handler, "^go_menu$"), # እዛ መስመር ተወሲኻ
+                CallbackQueryHandler(start_cmd, "^restart$")
+            ],
+            LOCATION: [
+                CallbackQueryHandler(payment_handler, "^loc_"), 
+                CallbackQueryHandler(menu_handler, "^go_menu$") # እዛ መስመር ተወሲኻ
+            ],
+            PAYMENT: [
+                MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), proof_handler), 
+                CallbackQueryHandler(menu_handler, "^go_menu$") # እዛ መስመር ተወሲኻ
+            ]
         },
         fallbacks=[CommandHandler("start", start_cmd)]
     )
